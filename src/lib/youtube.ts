@@ -90,25 +90,75 @@ async function durationFromDataApi(videoId: string, apiKey: string): Promise<Dur
   };
 }
 
+const BROWSER_HEADERS = {
+  "Accept-Language": "en-US,en;q=0.9",
+  "User-Agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36",
+  // Without a consent choice YouTube answers datacenter addresses with an
+  // interstitial that carries no video data at all.
+  Cookie: "CONSENT=YES+cb; SOCS=CAISEwgDEgk0ODE3Nzk3MjQaAmVuIAEaBgiA_LyaBg",
+} as const;
+
+/** Pulls a length out of whatever shape the page or player response uses. */
+function lengthFrom(text: string): DurationInfo | null {
+  const seconds = text.match(/"lengthSeconds":\s*"?(\d+)"?/)?.[1];
+  if (seconds !== undefined) {
+    const value = Number(seconds);
+    // A running stream reports a length of zero.
+    return { seconds: value || null, live: value === 0 };
+  }
+  const ms = text.match(/"approxDurationMs":\s*"?(\d+)"?/)?.[1];
+  if (ms !== undefined) return { seconds: Math.round(Number(ms) / 1000) || null, live: false };
+  return null;
+}
+
 /**
  * Fallback when no YOUTUBE_API_KEY is set: reads the duration embedded in the
  * public watch page. Not an official API and may break without notice.
  */
-async function durationFromWatchPage(videoId: string): Promise<DurationInfo> {
-  const res = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
+export async function durationFromWatchPage(videoId: string): Promise<DurationInfo> {
+  // bpctr and has_verified skip the consent and mature-content interstitials.
+  const res = await fetch(
+    `https://www.youtube.com/watch?v=${videoId}&bpctr=9999999999&has_verified=1&hl=en`,
+    { cache: "no-store", headers: BROWSER_HEADERS },
+  );
+  if (!res.ok) return { seconds: null, live: false };
+  return lengthFrom(await res.text()) ?? { seconds: null, live: false };
+}
+
+/**
+ * Second fallback: the player endpoint the site's own client calls. It answers
+ * with metadata where the watch page hands back a consent wall instead.
+ */
+export async function durationFromPlayer(videoId: string): Promise<DurationInfo> {
+  const res = await fetch("https://www.youtube.com/youtubei/v1/player", {
+    method: "POST",
     cache: "no-store",
-    headers: {
-      "Accept-Language": "en-US,en;q=0.9",
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130 Safari/537.36",
-    },
+    headers: { ...BROWSER_HEADERS, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      videoId,
+      context: {
+        client: { clientName: "WEB", clientVersion: "2.20240726.00.00", hl: "en", gl: "US" },
+      },
+    }),
   });
   if (!res.ok) return { seconds: null, live: false };
 
-  const length = (await res.text()).match(/"lengthSeconds":"(\d+)"/)?.[1];
-  const seconds = length ? Number(length) : null;
-  // A running stream reports a length of zero.
-  return { seconds: seconds || null, live: seconds === 0 };
+  const data = (await res.json()) as {
+    videoDetails?: { lengthSeconds?: string; isLive?: boolean; isLiveContent?: boolean };
+  };
+  const details = data.videoDetails;
+  if (!details?.lengthSeconds) return { seconds: null, live: details?.isLive ?? false };
+
+  const seconds = Number(details.lengthSeconds);
+  return { seconds: seconds || null, live: details.isLive === true || seconds === 0 };
+}
+
+/** The whole fallback chain, in the order it is worth paying for. */
+async function durationWithoutApiKey(videoId: string): Promise<DurationInfo> {
+  const page = await durationFromWatchPage(videoId);
+  if (page.seconds || page.live) return page;
+  return durationFromPlayer(videoId);
 }
 
 /** Resolves a YouTube link to a playable Track, enforcing the 10-minute limit. */
@@ -119,7 +169,7 @@ export async function resolveTrack(input: string): Promise<Track> {
   const apiKey = process.env.YOUTUBE_API_KEY;
   const [meta, duration] = await Promise.all([
     fetchOEmbed(videoId),
-    apiKey ? durationFromDataApi(videoId, apiKey) : durationFromWatchPage(videoId),
+    apiKey ? durationFromDataApi(videoId, apiKey) : durationWithoutApiKey(videoId),
   ]);
 
   if (duration.live) throw new GameError("noLiveStreams");
