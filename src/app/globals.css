@@ -1,0 +1,308 @@
+@import "tailwindcss";
+
+/*
+ * Palette
+ * -------
+ * The "ui color palette" image hasn't reached the project folder yet, so these
+ * base colours are provisional. Every shade below is mixed from them, so
+ * swapping a base re-tints the whole site, monochrome steps included.
+ */
+:root {
+  --base-ink: #0b0a12;
+  --base-volt: #8b5cf6;
+  --base-flare: #ff3d7f;
+  --base-pulse: #22d3ee;
+  --base-sun: #facc15;
+  --base-blaze: #ef4444;
+  --base-mint: #34d399;
+}
+
+@theme inline {
+  /* Monochrome ramp of the background ink. 950 is the page itself. */
+  --color-ink-50: color-mix(in oklab, var(--base-ink) 4%, white);
+  --color-ink-100: color-mix(in oklab, var(--base-ink) 10%, white);
+  --color-ink-200: color-mix(in oklab, var(--base-ink) 22%, white);
+  --color-ink-300: color-mix(in oklab, var(--base-ink) 38%, white);
+  --color-ink-400: color-mix(in oklab, var(--base-ink) 52%, white);
+  --color-ink-500: color-mix(in oklab, var(--base-ink) 64%, white);
+  --color-ink-600: color-mix(in oklab, var(--base-ink) 75%, white);
+  --color-ink-700: color-mix(in oklab, var(--base-ink) 84%, white);
+  --color-ink-800: color-mix(in oklab, var(--base-ink) 91%, white);
+  --color-ink-900: color-mix(in oklab, var(--base-ink) 95%, white);
+  --color-ink-950: var(--base-ink);
+
+  --color-volt-200: color-mix(in oklab, var(--base-volt) 45%, white);
+  --color-volt-300: color-mix(in oklab, var(--base-volt) 70%, white);
+  --color-volt-400: color-mix(in oklab, var(--base-volt) 86%, white);
+  --color-volt-500: var(--base-volt);
+  --color-volt-600: color-mix(in oklab, var(--base-volt) 80%, var(--base-ink));
+  --color-volt-700: color-mix(in oklab, var(--base-volt) 60%, var(--base-ink));
+  --color-volt-800: color-mix(in oklab, var(--base-volt) 40%, var(--base-ink));
+  --color-volt-900: color-mix(in oklab, var(--base-volt) 22%, var(--base-ink));
+
+  --color-flare-200: color-mix(in oklab, var(--base-flare) 45%, white);
+  --color-flare-300: color-mix(in oklab, var(--base-flare) 70%, white);
+  --color-flare-400: color-mix(in oklab, var(--base-flare) 86%, white);
+  --color-flare-500: var(--base-flare);
+  --color-flare-600: color-mix(in oklab, var(--base-flare) 80%, var(--base-ink));
+  --color-flare-700: color-mix(in oklab, var(--base-flare) 60%, var(--base-ink));
+  --color-flare-800: color-mix(in oklab, var(--base-flare) 40%, var(--base-ink));
+  --color-flare-900: color-mix(in oklab, var(--base-flare) 22%, var(--base-ink));
+
+  --color-pulse-200: color-mix(in oklab, var(--base-pulse) 45%, white);
+  --color-pulse-300: color-mix(in oklab, var(--base-pulse) 70%, white);
+  --color-pulse-400: color-mix(in oklab, var(--base-pulse) 86%, white);
+  --color-pulse-500: var(--base-pulse);
+  --color-pulse-600: color-mix(in oklab, var(--base-pulse) 80%, var(--base-ink));
+  --color-pulse-700: color-mix(in oklab, var(--base-pulse) 60%, var(--base-ink));
+  --color-pulse-800: color-mix(in oklab, var(--base-pulse) 40%, var(--base-ink));
+  --color-pulse-900: color-mix(in oklab, var(--base-pulse) 22%, var(--base-ink));
+
+  /* Roles. Components use these, not the ramps, wherever a role exists. */
+  --color-background: var(--base-ink);
+  --color-foreground: var(--color-ink-50);
+  --color-muted: var(--color-ink-400);
+  --color-surface: var(--color-ink-900);
+  --color-surface-2: var(--color-ink-800);
+  --color-line: var(--color-ink-700);
+  --color-accent: var(--base-volt);
+  --color-player-a: var(--base-flare);
+  --color-player-b: var(--base-pulse);
+  --color-sun: var(--base-sun);
+  --color-blaze: var(--base-blaze);
+  --color-mint: var(--base-mint);
+
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-unbounded), var(--font-geist-sans), system-ui, sans-serif;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  /* The two fighters' colours bleeding in from opposite corners. */
+  background-image:
+    radial-gradient(ellipse 70% 45% at 10% -5%, color-mix(in oklab, var(--base-flare) 16%, transparent), transparent 70%),
+    radial-gradient(ellipse 70% 45% at 95% 105%, color-mix(in oklab, var(--base-pulse) 13%, transparent), transparent 70%),
+    radial-gradient(ellipse 50% 35% at 60% 40%, color-mix(in oklab, var(--base-volt) 7%, transparent), transparent 70%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--base-volt) 45%, transparent);
+}
+
+@layer components {
+  .panel {
+    background: color-mix(in oklab, var(--color-surface) 78%, transparent);
+    border: 1px solid var(--color-line);
+    border-radius: 1.25rem;
+    backdrop-filter: blur(14px);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.875rem;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    transition: transform 150ms ease, box-shadow 200ms ease, background-color 200ms ease, opacity 200ms ease;
+  }
+  .btn:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    color: var(--base-ink);
+    background: linear-gradient(120deg, var(--base-flare), var(--base-volt) 55%, var(--base-pulse));
+    background-size: 200% 100%;
+    background-position: 0% 50%;
+    box-shadow: 0 10px 30px -12px color-mix(in oklab, var(--base-volt) 70%, transparent);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background-position: 100% 50%;
+    box-shadow: 0 14px 40px -12px color-mix(in oklab, var(--base-flare) 70%, transparent);
+  }
+
+  .btn-ghost {
+    color: var(--color-foreground);
+    background: color-mix(in oklab, var(--color-surface-2) 70%, transparent);
+    border: 1px solid var(--color-line);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--color-surface-2);
+  }
+
+  .field {
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-line);
+    background: color-mix(in oklab, var(--color-surface-2) 80%, transparent);
+    padding: 0.7rem 0.9rem;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 150ms ease, box-shadow 150ms ease;
+  }
+  .field:focus {
+    border-color: var(--base-volt);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--base-volt) 25%, transparent);
+  }
+  .field[aria-invalid="true"] {
+    border-color: var(--base-blaze);
+  }
+
+  .eyebrow {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .text-gradient {
+    background: linear-gradient(100deg, var(--base-flare), var(--base-volt) 50%, var(--base-pulse));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .glow-a {
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--base-flare) 45%, transparent),
+      0 0 40px -10px var(--base-flare);
+  }
+  .glow-b {
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--base-pulse) 45%, transparent),
+      0 0 40px -10px var(--base-pulse);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(var(--tilt, 0deg)); }
+  50% { transform: translateY(-10px) rotate(var(--tilt, 0deg)); }
+}
+@keyframes breathe {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes flip-in {
+  from { opacity: 0; transform: perspective(600px) rotateX(-80deg); }
+  to { opacity: 1; transform: perspective(600px) rotateX(0); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/*
+ * The opening toss. The coin spins on its X axis: face 0deg is "yazı", the back
+ * face sits at 180deg. It loops while a side is being called, then --coin-land
+ * takes it through five more turns to the side that actually came up.
+ */
+@keyframes coin-spin {
+  to { transform: rotateX(360deg); }
+}
+@keyframes coin-land {
+  from { transform: rotateX(0); }
+  to { transform: rotateX(var(--coin-land, 1800deg)); }
+}
+/* Same ending face, none of the spinning. */
+@keyframes coin-land-short {
+  from { transform: rotateX(0); }
+  to { transform: rotateX(var(--coin-land-short, 0deg)); }
+}
+@keyframes coin-hover {
+  0%, 100% { transform: translateY(8px); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes coin-drop {
+  0% { transform: translateY(-4px) scale(1.05); }
+  55% { transform: translateY(-64px) scale(1.12); }
+  88% { transform: translateY(4px) scale(0.97); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes coin-rise {
+  from { transform: translateY(26px) scale(0.7); opacity: 0; }
+  to { transform: translateY(8px) scale(1); opacity: 1; }
+}
+
+.coin-stage {
+  perspective: 900px;
+}
+.coin {
+  position: relative;
+  height: 7rem;
+  width: 7rem;
+  transform-style: preserve-3d;
+}
+.coin-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  backface-visibility: hidden;
+  background:
+    radial-gradient(circle at 32% 26%, color-mix(in oklab, var(--base-sun) 60%, white), var(--base-sun) 55%,
+      color-mix(in oklab, var(--base-sun) 62%, var(--base-ink)) 100%);
+  border: 3px solid color-mix(in oklab, var(--base-sun) 55%, var(--base-ink));
+  color: color-mix(in oklab, var(--base-ink) 88%, var(--base-sun));
+  box-shadow: 0 18px 40px -18px var(--base-sun), inset 0 -6px 14px -6px color-mix(in oklab, var(--base-ink) 60%, transparent);
+}
+.coin-face-back {
+  transform: rotateX(180deg);
+}
+
+.animate-coin-spin { animation: coin-spin 450ms linear infinite; }
+.animate-coin-land { animation: coin-land 2200ms cubic-bezier(0.15, 0.6, 0.2, 1) forwards; }
+.animate-coin-hover { animation: coin-hover 1400ms ease-in-out infinite; }
+.animate-coin-drop { animation: coin-drop 2200ms cubic-bezier(0.2, 0.6, 0.3, 1) forwards; }
+.animate-coin-rise { animation: coin-rise 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+.animate-float { animation: float 5s ease-in-out infinite; }
+.animate-breathe { animation: breathe 1.8s ease-in-out infinite; }
+.animate-rise-in { animation: rise-in 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.animate-flip-in { animation: flip-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.animate-shake { animation: shake 420ms ease-in-out; }
+.animate-marquee { animation: marquee 40s linear infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-breathe,
+  .animate-rise-in,
+  .animate-flip-in,
+  .animate-shake,
+  .animate-marquee,
+  .animate-coin-hover,
+  .animate-coin-drop,
+  .animate-coin-rise {
+    animation: none;
+  }
+  /* The coin still has to end on the right face, so it turns slowly and lands without the flourish. */
+  .animate-coin-spin {
+    animation-duration: 2.4s;
+  }
+  .animate-coin-land {
+    animation: coin-land-short 400ms ease-out forwards;
+  }
+}
