@@ -1,0 +1,27 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci --cache .npm --prefer-offline
+    build:
+      commands:
+        # Amplify hands the console's environment variables to the build, but they
+        # do not reach the SSR runtime, so the server booted without MONGODB_URI and
+        # every database-backed page answered 500. Writing the server-side ones into
+        # .env.production makes the built app carry them. Only server variables
+        # belong here: Next sends nothing to the browser unless the name starts
+        # with NEXT_PUBLIC_.
+        - env | grep -E '^(MONGODB_URI|MONGODB_DB|JUDGE_PROVIDER|YOUTUBE_API_KEY|AWS_REGION|BEDROCK_MODEL_ID|AWS_BEARER_TOKEN_BEDROCK)=' >> .env.production || true
+        - npm run build
+        # Next reads .env.production from the application root at startup; the
+        # standalone bundle, when there is one, needs its own copy.
+        - if [ -d .next/standalone ]; then cp .env.production .next/standalone/.env.production; fi
+  artifacts:
+    baseDirectory: .next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - .next/cache/**/*
+      - .npm/**/*
