@@ -127,7 +127,7 @@ export const ui: Ui = {
 
   genre: {
     eyebrow: "Genre des Matches",
-    proposedToMe: (name: string, label: string) => `${name} schlägt „${label}" vor`,
+    proposedToMe: (name: string, label: string) => `${name} schlägt „${label}“ vor`,
     proposedTitle: (label: string) => `${label} wurde vorgeschlagen`,
     myTurnTitle: "Du wählst das Genre",
     theirTurnTitle: (name: string) => `${name} wählt das Genre`,

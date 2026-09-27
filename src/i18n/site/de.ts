@@ -79,7 +79,7 @@ export const site: Site = {
       },
       {
         title: "Song spielen, Punkte sammeln",
-        body: `Sobald ihr beide mindestens ${p.minSongs} Songs gespielt habt, könnt ihr mit „Match beenden" Schluss machen. Der Sieger bekommt einen Bonus, die Punkte gehen in die Bestenliste.`,
+        body: `Sobald ihr beide mindestens ${p.minSongs} Songs gespielt habt, könnt ihr mit „Match beenden“ Schluss machen. Der Sieger bekommt einen Bonus, die Punkte gehen in die Bestenliste.`,
       },
     ],
 
@@ -132,7 +132,7 @@ export const site: Site = {
           },
           {
             icon: "🟨🟥",
-            text: `Jeder Spieler hat pro Match ${p.yellow} Gelbe und ${p.red} Rote Karten. Gelb heißt „passt nicht ganz", Rot heißt „völlig daneben". Sieht der Schiedsrichter das anders, ist die Karte verbrannt und nichts ändert sich.`,
+            text: `Jeder Spieler hat pro Match ${p.yellow} Gelbe und ${p.red} Rote Karten. Gelb heißt „passt nicht ganz“, Rot heißt „völlig daneben“. Sieht der Schiedsrichter das anders, ist die Karte verbrannt und nichts ändert sich.`,
           },
           {
             icon: "🎧",
@@ -156,7 +156,7 @@ export const site: Site = {
         items: [
           {
             icon: "🏁",
-            text: `Sobald ihr beide mindestens ${p.minSongs} Songs gespielt habt und der Stand gleich ist, endet das Match, wenn ihr beide auf „Match beenden" drückt. Nach oben gibt es keine Grenze.`,
+            text: `Sobald ihr beide mindestens ${p.minSongs} Songs gespielt habt und der Stand gleich ist, endet das Match, wenn ihr beide auf „Match beenden“ drückt. Nach oben gibt es keine Grenze.`,
           },
           {
             icon: "⏳",
@@ -228,7 +228,7 @@ export const site: Site = {
       {
         icon: "🏁",
         title: "Wie endet ein Match?",
-        body: `Sobald ihr beide mindestens ${p.minSongs} Songs gespielt habt, drückt auf „Match beenden". In deinem Zug hast du ${p.turnMinutes} Minuten, sonst verlierst du kampflos. Bis zum ersten Song kannst du ohne Wertung aussteigen.`,
+        body: `Sobald ihr beide mindestens ${p.minSongs} Songs gespielt habt, drückt auf „Match beenden“. In deinem Zug hast du ${p.turnMinutes} Minuten, sonst verlierst du kampflos. Bis zum ersten Song kannst du ohne Wertung aussteigen.`,
         tone: "from-mint/15",
       },
       {
