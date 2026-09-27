@@ -98,7 +98,14 @@ function clientPromise(): Promise<MongoClient> {
     throw new Error("MONGODB_URI is not set. Copy .env.example to .env.local and fill it in.");
   }
 
-  globalForMongo._mongoClientPromise ??= new MongoClient(uri).connect();
+  // Don't cache a failed connection: a single bad cold start would otherwise
+  // leave this instance answering 500 forever, long after the cluster is back.
+  globalForMongo._mongoClientPromise ??= new MongoClient(uri)
+    .connect()
+    .catch((error: unknown) => {
+      globalForMongo._mongoClientPromise = undefined;
+      throw error;
+    });
   return globalForMongo._mongoClientPromise;
 }
 
