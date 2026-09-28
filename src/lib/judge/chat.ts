@@ -1,12 +1,13 @@
 import { BedrockChatReferee } from "./bedrock";
+import { OpenAIChatReferee } from "./openai";
 
 /**
  * The referee's second job: reading match chat for song tips.
  *
  * Giving away a song, an artist, or any other hint in chat costs the author
- * their account. With JUDGE_PROVIDER=bedrock the model decides, behind strict
- * safeguards (see BedrockChatReferee); "mock" never flags anyone. Links are
- * refused earlier, before a message ever reaches the referee.
+ * their account. With a real JUDGE_PROVIDER the model decides, behind strict
+ * safeguards (see isGroundedTip); "mock" never flags anyone. Links are refused
+ * earlier, before a message ever reaches the referee.
  */
 
 export interface ChatReviewInput {
@@ -44,11 +45,16 @@ export function getChatReferee(): ChatReferee {
     case "mock":
       cached = new MockChatReferee();
       break;
+    case "openai":
+      cached = new OpenAIChatReferee();
+      break;
     case "bedrock":
       cached = new BedrockChatReferee();
       break;
     default:
-      throw new Error(`Bilinmeyen JUDGE_PROVIDER: "${provider}". "mock" ya da "bedrock" olmalı.`);
+      throw new Error(
+        `Bilinmeyen JUDGE_PROVIDER: "${provider}". "openai", "bedrock" ya da "mock" olmalı.`,
+      );
   }
   return cached;
 }
