@@ -22,6 +22,12 @@ import type { Judge, JudgeInput, JudgeResult } from "./types";
  */
 
 const ENDPOINT = "https://api.openai.com/v1/chat/completions";
+
+/**
+ * Chosen by trial, not by price: the nano model of the same generation turned
+ * down songs that plainly fit and missed a tip written in English. Retest
+ * before swapping this out.
+ */
 const DEFAULT_MODEL = "gpt-5.4-mini";
 const REQUEST_TIMEOUT_MS = 20_000;
 
