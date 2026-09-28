@@ -21,10 +21,11 @@ http://localhost:3000 → Üye Ol → Giriş Yap → Lobi → **Music Fight Baş
 |---|---|
 | `MONGODB_URI` | MongoDB bağlantısı (Atlas replica set; puanlar transaction ile yazılıyor) |
 | `MONGODB_DB` | Veritabanı adı, varsayılan `music_fight` |
-| `JUDGE_PROVIDER` | `mock` (başlık benzerliği, LLM yok) ya da `bedrock` (Amazon Nova Lite; şarkı ve sohbet hakemi) |
+| `JUDGE_PROVIDER` | `openai` (şarkı ve sohbet hakemi), `bedrock` ya da `mock` (başlık benzerliği, LLM yok) |
+| `OPENAI_API_KEY` / `OPENAI_MODEL` | OpenAI hakemi; model varsayılanı `gpt-5.4-mini` (denenerek seçildi, nano yetersiz kaldı) |
 | `AWS_REGION` / `BEDROCK_MODEL_ID` | Bedrock bölgesi ve modeli — varsayılan `eu-central-1` / `eu.amazon.nova-lite-v1:0` |
 | `AWS_BEARER_TOKEN_BEDROCK` | Bedrock API key; AWS SDK kendisi okur |
-| `YOUTUBE_API_KEY` | İsteğe bağlı. Varsa şarkı süresi resmi Data API'den okunur |
+| `YOUTUBE_API_KEY` | **Production için zorunlu.** Olmayınca süre izleme sayfasından kazınır; sunucu IP.lerine YouTube boş sayfa döndürdüğü için canlıda şarkı gönderme çalışmaz |
 | `MF_LISTEN_RATIO` | **Sadece geliştirme.** %80 kuralını test için küçültür (ör. `0.02`). Production'da yok sayılır |
 
 ## Diller
@@ -59,7 +60,8 @@ Site Türkçe, İngilizce ve Almanca yayında. Her sayfa `/<dil>/…` altında: 
 6. **Hakem şarkıya hemen karar verir ama karar mühürlü kalır** — oyunculardan da izleyicilerden de.
    Açılış şarkısı anlaşılan türe göre, sonraki her şarkı bir öncekinin formatına göre değerlendirilir.
 7. Rakip şarkının en az %80'ini dinler, sonra kararını verir: sarı kart, kırmızı kart ya da kart yok.
-8. Karar verildiği an mühür herkes için açılır ve puanlar yazılır. Sonra rakip kendi şarkısını atar.
+8. Karar verildiği an mühür herkes için açılır ve puanlar yazılır. Hakem de kartı haklı bulduysa kart siciline işler:
+   kırmızıda ya da ikinci sarıda maç orada biter, kartı yiyen kaybeder. Aksi hâlde rakip kendi şarkısını atar.
 
 İlk şarkı atılana kadar her iki oyuncu da **Maçtan Ayrıl** diyebilir: oda kapanır, kimseye puan yazılmaz.
 İlk şarkıdan sonra bu kapı kapanır, çıkmak isteyen pes eder.
@@ -87,6 +89,7 @@ süresi dolmuş maçı bitirir.
 | Hakem: formata uymuyor | −20 |
 | Açılış şarkısı (anlaşılan türe göre) | +30 / −20 |
 | Haklı çıkan sarı / kırmızı kart (şarkı sahibine ek) | −5 / −10 |
+| **Haklı çıkan kırmızı ya da ikinci sarı** | kartı yiyen maçı kaybeder, maç orada biter |
 | Rakibin şarkısını dinlemeden atlamak (atlayana, sınırsız; atlanan şarkıya sadece sarı kart) | −5 |
 | Hakemin uyumlu bulduğu şarkıya kart | kart boşa gider |
 | Galibiyet / beraberlik bonusu (min. 3'er şarkı) | +10 / ikisine +5 |
@@ -95,6 +98,7 @@ süresi dolmuş maçı bitirir.
 ### İzleyiciler ve sohbet
 
 - Oda koduyla her maç izlenebilir; oyunculardan biri maçı istediği an izleyicilere kapatabilir (varsayılan açık).
+- Ayrı bir anahtar izleyicilerin **yazmasını** kapatır: okumaya devam ederler, mesaj gönderemezler (varsayılan açık).
 - Üst barda canlı izleyici sayısı görünür (son 20 saniyede yoklama yapanlar).
 - Oyuncular ve izleyiciler aynı sohbete yazar, hızlı emoji atar.
 - **Link paylaşmak engellenir.** Şarkı adı/sanatçı/ipucu vermek hesabın kalıcı olarak silinmesiyle cezalandırılır —
@@ -122,9 +126,11 @@ src/
 │  │  ├─ lobby/                 banner'lar, Music Fight Başlat, oda koduyla katıl/izle
 │  │  ├─ room/[code]/           maç ekranı (RoomClient 1,5 sn'de bir oyun + sohbet yoklar)
 │  │  ├─ profile/[nickname]/    herkese açık profil + sahibine düzenleme ve engellenenler
+│  │  ├─ help/                  akordiyon yardım sayfası (14 soru, JS gerektirmeyen <details>)
+│  │  ├─ contact/               iletişim formu (mesajlar veritabanında bekler, hiçbir yere iletilmez)
 │  │  └─ kvkk/                  aydınlatma metni (TASLAK)
-│  ├─ actions/                  auth.ts, profile.ts
-│  └─ api/                      rooms/…, chat/…, tracks/preview
+│  ├─ actions/                  auth.ts, profile.ts, contact.ts
+│  └─ api/                      rooms/…, chat/…, tracks/preview, health
 ├─ components/
 │  ├─ fight/                    CoinToss, GenrePick, MatchSetup, YouTubeStage, CardDecision, SendSong,
 │  │                            ChatPanel, MatchControls, TurnClock, SpectatorStage, MoveHistory, ResultPanel…
@@ -146,7 +152,7 @@ src/
 ```
 
 MongoDB koleksiyonları: `users`, `sessions` (TTL), `rooms`, `score_events` (puan defteri),
-`chat_messages` (TTL 24 sa), `presence` (izleyici yoklaması, TTL), `reports`, `moderation_log`.
+`chat_messages` (TTL 24 sa), `presence` (izleyici yoklaması, TTL), `reports`, `moderation_log`, `contact_messages`.
 
 ### API
 
@@ -162,20 +168,22 @@ MongoDB koleksiyonları: `users`, `sessions` (TTL), `rooms`, `score_events` (pua
 | `POST` | `/api/rooms/[code]/decision` | `{ card: "yellow" \| "red" \| null }` mührü açar |
 | `POST` | `/api/rooms/[code]/end` | `{ wantsToEnd }` «Maçı Bitir» oyu |
 | `POST` | `/api/rooms/[code]/surrender` | Pes eder |
-| `POST` | `/api/rooms/[code]/settings` | `{ spectatorsAllowed }` izleyicileri açar/kapatır |
+| `POST` | `/api/rooms/[code]/settings` | `{ spectatorsAllowed?, spectatorChatAllowed? }` izlemeyi ve izleyici sohbetini açar/kapatır |
 | `POST` | `/api/rooms/[code]/chat` | `{ text }` mesaj gönderir |
 | `POST` | `/api/chat/[messageId]/report` | Mesajı şikayet eder |
 | `POST` | `/api/chat/[messageId]/block` | Mesajın yazarını engeller |
 | `GET` | `/api/tracks/preview?url=` | Göndermeden önce başlık ve süre kontrolü |
+| `GET` | `/api/health` | Dağıtım kontrolü: hangi değişkenler tanımlı, Mongo cevap veriyor mu |
 
 ## Bilinen eksikler
 
-- **Bedrock hakemi yazıldı ama henüz devrede değil.** `JUDGE_PROVIDER=bedrock` ile şarkı ve sohbet hakemi Amazon Nova Lite'a
-  (Frankfurt, `eu.amazon.nova-lite-v1:0`) bağlanır ([src/lib/judge/bedrock.ts](src/lib/judge/bedrock.ts)). AWS hesabı şu an
-  model çağrısına izin vermediği için (`Error 002: Access to Bedrock models is not allowed for this account`) `.env.local`
-  `mock`'ta duruyor: `mock` şarkı hakemi başlık/kanal benzerliğine bakar, **açılış şarkısının seçilen türe uyup
-  uymadığını anlayamadığı için her açılışı geçerli sayar**, sohbet hakemi kimseyi işaretlemez.
-  Sohbet hakemi bir hesabı ancak model %85+ emin olup ipucunu mesajdan birebir alıntılayabildiğinde siler.
+- **Hakem OpenAI'da.** `JUDGE_PROVIDER=openai` ile şarkı ve sohbet hakemi OpenAI'a bağlanır
+  ([src/lib/judge/openai.ts](src/lib/judge/openai.ts)); yapılandırılmış çıktı kullanıldığı için model JSON'un etrafına
+  metin yazamaz. Model `OPENAI_MODEL` ile seçilir, varsayılan `gpt-5.4-mini`. Bedrock adaptörü duruyor ama AWS hesabı
+  model çağrısına izin vermiyor (`Error 002: Access to Bedrock models is not allowed for this account`). `mock` şarkı
+  hakemi başlık/kanal benzerliğine bakar ve **açılış şarkısının türe uyup uymadığını anlayamadığı için her açılışı
+  geçerli sayar**; sohbet hakemi kimseyi işaretlemez. Sohbet hakemi bir hesabı ancak model %85+ emin olup ipucunu
+  mesajdan birebir alıntılayabildiğinde siler.
 - **AI ile kapış** lobide "Yakında"; izleyici modu şimdilik gerçek oyuncu maçları için.
 - **Mail doğrulama ve şifremi unuttum** sonraya bırakıldı.
 - **Renk paleti geçici.** `ui color palette` görseli projeye ulaşmadı; renkler [globals.css](src/app/globals.css) başındaki `--base-*` değişkenlerinde.

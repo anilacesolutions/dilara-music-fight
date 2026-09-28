@@ -4,6 +4,7 @@ export const errors: Errors = {
   sessionExpired: "Your session has expired, please sign in again.",
   notAPlayer: "You're not a player in this match.",
   spectatorsBlocked: "The players have closed this match to spectators.",
+  spectatorChatBlocked: "The players have switched off spectator chat; you can watch but not write.",
 
   noSuchRoom: "No such room.",
   roomCreateFailed: "The room could not be created, please try again.",

@@ -4,6 +4,7 @@ export const errors: Errors = {
   sessionExpired: "Deine Sitzung ist abgelaufen, bitte melde dich erneut an.",
   notAPlayer: "Du bist in diesem Match kein Spieler.",
   spectatorsBlocked: "Die Spieler haben dieses Match für Zuschauer geschlossen.",
+  spectatorChatBlocked: "Die Spieler haben den Zuschauer-Chat ausgeschaltet; zuschauen ja, schreiben nein.",
 
   noSuchRoom: "Diesen Raum gibt es nicht.",
   roomCreateFailed: "Der Raum konnte nicht erstellt werden, versuch es noch einmal.",

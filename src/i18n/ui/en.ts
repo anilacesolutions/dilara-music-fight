@@ -16,6 +16,7 @@ export const ui: Ui = {
 
   header: {
     home: "Music Fight home",
+    help: "Help",
     login: "Sign In",
     signup: "Sign Up",
     lobby: "Lobby",
@@ -99,6 +100,7 @@ export const ui: Ui = {
     required: (heard: string, needed: string) => `${heard} / ${needed} needed`,
     requiredMark: "Listening requirement",
     muted: "🔇 Time spent muted doesn't count.",
+    pressPlay: "▶ Press play — the counter only moves while the song is playing.",
     rules: "Anything you skip past doesn't count, and replaying a part doesn't add to the total.",
   },
 
@@ -156,6 +158,7 @@ export const ui: Ui = {
     reply: (match: number, mismatch: number) =>
       `Pick a song close to the format of your opponent's. A fit scores +${match}, a miss ${mismatch}.`,
     urlLabel: "YouTube link",
+    clear: "Clear the link",
     check: "Check",
     checking: "Checking…",
     checkFailed: "The link could not be checked.",
@@ -184,7 +187,7 @@ export const ui: Ui = {
     skipButton: (cost: number) => `⏭ Skip Without Listening (−${cost} points)`,
     skipCancel: "Never mind, keep listening",
     footnote:
-      "If the referee also finds the song off-format, your opponent takes the card penalty too. If the referee accepts it, your card is wasted.",
+      "If the referee also finds the song off-format, the card stands: your opponent takes the penalty and it goes on their record. A red ends the match there and then and they lose it, and so does their second yellow. If the referee accepts the song, your card is wasted.",
   },
 
   chat: {
@@ -193,6 +196,7 @@ export const ui: Ui = {
     empty: "Write the first message.",
     closed: "The chat is closed.",
     placeholder: "Write a message…",
+    mutedSpectator: "The players have switched off spectator chat. You can read along, but not post.",
     inputLabel: "Chat message",
     send: "Send",
     quickSend: (emoji: string) => `send ${emoji}`,
@@ -229,7 +233,9 @@ export const ui: Ui = {
     leaveNote: "No song has been played yet: nobody is scored and the room closes.",
     leaveConfirm: "Yes, leave",
     spectatorsOn: "Open to spectators",
-    spectatorsHint: "Anyone with the room code can watch and join the chat.",
+    spectatorsHint: "Anyone with the room code can watch the match.",
+    spectatorChatOn: "Let spectators write",
+    spectatorChatHint: "Switch it off and spectators can read the chat but not post.",
   },
 
   clock: {
@@ -277,6 +283,8 @@ export const ui: Ui = {
     reasonSurrenderTheirs: (name: string) => `${name} gave up.`,
     reasonTimeoutMine: "You didn't send a song in time, so the match went to your opponent.",
     reasonTimeoutTheirs: (name: string) => `${name} didn't send a song in time — a win by default.`,
+    reasonCardsMine: "Your cards ran out, you were sent off and the match ended there.",
+    reasonCardsTheirs: (name: string) => `${name} was sent off on cards, so the match ended there.`,
     reasonViolation: (name: string) => `${name} was removed from the match for breaking the rules.`,
     bonusCancelled: "Nobody was scored; both totals are untouched.",
     bonusNone: (min: number) => `No bonus: the match ended before both players reached ${min} songs.`,
@@ -345,8 +353,9 @@ export const ui: Ui = {
     waitingForOpponent: "Waiting for an opponent…",
     onTurn: "● on turn",
     wantsToEnd: "wants to end it ✓",
-    yellowCards: (left: number, total: number) => `Yellow cards: ${left}/${total}`,
-    redCards: (left: number, total: number) => `Red cards: ${left}/${total}`,
+    bookedYellow: (count: number, limit: number) =>
+      `Yellow cards against: ${count}/${limit} — ${limit} of them end the match`,
+    bookedRed: (count: number) => `Red cards against: ${count}/1 — a red ends the match`,
   },
 
   leaderboard: {

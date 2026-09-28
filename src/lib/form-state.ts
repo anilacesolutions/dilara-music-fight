@@ -41,3 +41,16 @@ export interface ProfileState {
 }
 
 export const initialProfileState: ProfileState = { status: "idle", message: "" };
+
+export interface ContactState {
+  status: "idle" | "sent";
+  errors: Partial<Record<"name" | "email" | "subject" | "message" | "form", string>>;
+  /** Echoed back so a rejected note isn't lost. */
+  values: { name: string; email: string; subject: string; message: string };
+}
+
+export const initialContactState: ContactState = {
+  status: "idle",
+  errors: {},
+  values: { name: "", email: "", subject: "", message: "" },
+};

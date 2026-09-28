@@ -2,7 +2,7 @@
 
 import { useUi } from "@/i18n/client";
 import { avatarEmoji } from "@/lib/catalog";
-import { CARDS_PER_PLAYER } from "@/lib/rules";
+import { CARDS_PER_PLAYER, YELLOWS_BEFORE_SENDING_OFF } from "@/lib/rules";
 import type { PlayerSlot, PlayerView, RoomView } from "@/lib/types";
 
 const TONES = {
@@ -10,15 +10,25 @@ const TONES = {
   b: { text: "text-player-b", glow: "glow-b", wash: "from-pulse-500/20" },
 };
 
+/**
+ * The two player cards sit on the same column widths as the stage and the
+ * sidebar below them, so the whole room reads as two columns running down the
+ * page. VS straddles the gap by hanging off the first card's edge, which keeps
+ * it centred whatever the ratio is at that breakpoint.
+ */
 export function Scoreboard({ room }: { room: RoomView }) {
   const bySlot = (slot: PlayerSlot) => room.players.find((player) => player.slot === slot);
   const live = room.status === "active";
   const activeSlot = live ? room.turn : null;
 
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-stretch gap-2 sm:gap-4">
-      <PlayerCard slot="a" player={bySlot("a")} active={activeSlot === "a"} live={live} isMe={room.me === "a"} />
-      <div className="grid place-items-center font-display text-lg font-black text-ink-600 sm:text-2xl">VS</div>
+    <div className="grid grid-cols-2 items-stretch gap-3 sm:gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:gap-6">
+      <div className="relative">
+        <PlayerCard slot="a" player={bySlot("a")} active={activeSlot === "a"} live={live} isMe={room.me === "a"} />
+        <span className="absolute right-0 top-1/2 z-20 grid h-7 w-7 -translate-y-1/2 translate-x-[calc(50%+6px)] place-items-center rounded-full border border-line bg-background font-display text-[10px] font-black text-ink-400 sm:h-8 sm:w-8 sm:text-xs lg:translate-x-[calc(50%+12px)]">
+          VS
+        </span>
+      </div>
       <PlayerCard slot="b" player={bySlot("b")} active={activeSlot === "b"} live={live} isMe={room.me === "b"} />
     </div>
   );
@@ -41,7 +51,7 @@ function PlayerCard({ slot, player, active, live, isMe }: PlayerCardProps) {
 
   if (!player) {
     return (
-      <div className="panel animate-breathe grid place-items-center p-4 text-sm text-muted">
+      <div className="panel animate-breathe grid h-full place-items-center p-4 text-center text-sm text-muted">
         {t.waitingForOpponent}
       </div>
     );
@@ -50,7 +60,7 @@ function PlayerCard({ slot, player, active, live, isMe }: PlayerCardProps) {
   const mirrored = slot === "b";
 
   return (
-    <div className={`panel relative overflow-hidden p-3 transition sm:p-4 ${active ? tone.glow : ""}`}>
+    <div className={`panel relative h-full overflow-hidden p-3 transition sm:p-4 ${active ? tone.glow : ""}`}>
       <div className={`pointer-events-none absolute inset-0 bg-gradient-to-b to-transparent ${tone.wash}`} />
       <div className={`relative flex items-center gap-2 sm:gap-3 ${mirrored ? "flex-row-reverse text-right" : ""}`}>
         <span className="hidden h-11 w-11 shrink-0 place-items-center rounded-2xl bg-surface-2 text-2xl sm:grid">
@@ -62,18 +72,19 @@ function PlayerCard({ slot, player, active, live, isMe }: PlayerCardProps) {
             {player.nickname}
             {isMe && <span className="ml-1 text-xs font-normal text-muted">({ui.common.you})</span>}
           </p>
+          {/* Cards shown against this player, not the ones they hold: these are what ends the match. */}
           <div className={`mt-1.5 flex items-center gap-1 ${mirrored ? "justify-end" : ""}`}>
             <CardPips
               color="yellow"
-              left={player.cards.yellow}
-              total={CARDS_PER_PLAYER.yellow}
-              title={t.yellowCards(player.cards.yellow, CARDS_PER_PLAYER.yellow)}
+              filled={player.booked.yellow}
+              total={YELLOWS_BEFORE_SENDING_OFF}
+              title={t.bookedYellow(player.booked.yellow, YELLOWS_BEFORE_SENDING_OFF)}
             />
             <CardPips
               color="red"
-              left={player.cards.red}
+              filled={player.booked.red}
               total={CARDS_PER_PLAYER.red}
-              title={t.redCards(player.cards.red, CARDS_PER_PLAYER.red)}
+              title={t.bookedRed(player.booked.red)}
             />
           </div>
         </div>
@@ -91,12 +102,13 @@ function PlayerCard({ slot, player, active, live, isMe }: PlayerCardProps) {
 
 function CardPips({
   color,
-  left,
+  filled,
   total,
   title,
 }: {
   color: "yellow" | "red";
-  left: number;
+  /** How many of these have been shown and upheld. */
+  filled: number;
   total: number;
   title: string;
 }) {
@@ -105,7 +117,7 @@ function CardPips({
       {Array.from({ length: total }, (_, index) => (
         <span
           key={index}
-          className={`h-4 w-3 rounded-[3px] ${color === "yellow" ? "bg-sun" : "bg-blaze"} ${index < left ? "" : "opacity-20"}`}
+          className={`h-4 w-3 rounded-[3px] ${color === "yellow" ? "bg-sun" : "bg-blaze"} ${index < filled ? "" : "opacity-20"}`}
         />
       ))}
     </span>

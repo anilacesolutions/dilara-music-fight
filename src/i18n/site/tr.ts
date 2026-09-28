@@ -17,6 +17,8 @@ export const site = {
   },
 
   footer: {
+    help: "Yardım",
+    contact: "İletişim",
     privacy: "KVKK Aydınlatma Metni",
   },
 
@@ -60,7 +62,7 @@ export const site = {
       {
         icon: "🟥",
         title: "Kartını göster",
-        body: "Rakibinin şarkısı formatı bozdu mu? Sarı ya da kırmızı kart çıkar. Son sözü hakem söyler.",
+        body: "Rakibinin şarkısı formatı bozdu mu? Sarı ya da kırmızı kart çıkar. Hakem de katılırsa kırmızı maçı bitirir.",
       },
     ],
 
@@ -138,7 +140,7 @@ export const site = {
           },
           {
             icon: "🟨🟥",
-            text: `Maç başına her oyuncunun ${p.yellow} sarı ve ${p.red} kırmızı kartı var. Sarı «tam oturmadı», kırmızı «kesinlikle alakasız» demek. Hakem kartı haksız bulursa kart yanar, puan değişmez.`,
+            text: `Maç başına her oyuncunun ${p.yellow} sarı ve ${p.red} kırmızı kartı var. Hakem kartı haklı bulursa geçerli sayılır: kırmızıda maç orada biter ve kartı yiyen kaybeder, ikinci sarıda da aynısı olur. Hakem haksız bulursa kart yanar, hiçbir şey değişmez.`,
           },
           { icon: "🎧", text: `Rakibinin şarkısının en az %${p.percent}'ini dinlemeden şarkı atamaz, kart gösteremezsin.` },
           {
@@ -225,7 +227,7 @@ export const site = {
       {
         icon: "🎯",
         title: "Kartlarını erken yakma",
-        body: `Maç başına ${p.yellow} sarı, ${p.red} kırmızı kartın var. Hakem haksız bulursa kart boşa gider.`,
+        body: `Maç başına ${p.yellow} sarı, ${p.red} kırmızı kartın var. Geçerli bir kırmızı ya da ikinci sarı maçı bitirir; hakem haksız bulursa kart boşa gider.`,
         tone: "from-flare-500/15",
       },
       {
@@ -289,7 +291,10 @@ export const site = {
     firstNameMax: "Adın en fazla 40 karakter olabilir.",
     lastNameMin: "Soyadın en az 2 karakter olmalı.",
     lastNameMax: "Soyadın en fazla 40 karakter olabilir.",
-    nickname: "3-20 karakter; harf, rakam ve alt çizgi kullanabilirsin.",
+    nicknameShort: "Nickname en az 3 karakter olmalı.",
+    nicknameLong: "Nickname en fazla 20 karakter olabilir.",
+    nicknameChars: (chars: string) =>
+      `Nickname’de şunları kullanamazsın: ${chars}. Harf (ç, ğ, ı, ö, ş, ü dahil), rakam ve alt çizgi serbest.`,
     email: "Geçerli bir e-posta adresi gir.",
     birthDateRequired: "Doğum tarihini gir.",
     birthDateInvalid: "Geçerli bir tarih gir.",
@@ -314,6 +319,77 @@ export const site = {
     metaTitle: (code: string) => `Oda ${code}`,
     closedNote: "Oyuncular maçı tekrar açarsa buradan izleyebilirsin.",
     backToLobby: "Lobiye dön",
+  },
+
+  help: {
+    title: "Yardım",
+    intro: "Merak ettiklerin burada. Başlığa dokun, cevabı açılsın.",
+    playQ: "Music Fight nasıl oynanır?",
+    playA:
+      "İki oyuncu sırayla YouTube'dan şarkı atar. Attığın her şarkı, rakibinin bir önceki şarkısının formatına yakın olmak zorundadır: tür, enerji, dönem, prodüksiyon. Hakem her şarkıya uyar ya da uymaz der. Uyarsa puan kazanırsın, uymazsa kaybedersin. Maç boyunca müzik yavaş yavaş başka yerlere sürüklenir, oyunun tadı da budur.",
+    signupQ: "Nasıl üye olunur?",
+    signupA: (minGenres: number, minAge: number) =>
+      `Ad, soyad, nickname, e-posta, doğum tarihi ve şifre yetiyor. Siteyi kullanmak için ${minAge} yaşından büyük olman gerekiyor. Bir de en az ${minGenres} müzik türü seçiyorsun: maçın açılış türü iki oyuncunun ortak türlerinden çıktığı için bu liste boş kalamaz. Sitede yalnızca nickname'in görünür; adın ve e-postan kimseye gösterilmez.`,
+    startQ: "Maç nasıl başlatılır?",
+    startA:
+      "Lobiden yeni bir maç açtığında sana bir oda kodu verilir. Kodu arkadaşına yolla, o da lobideki kutuya yazıp katılsın. Katılan kişi oyuncu olarak oturabilir ya da sadece izleyebilir.",
+    coinQ: "Yazı tura nasıl işler?",
+    coinA: (seconds: number) =>
+      `İki oyuncu da odaya girince "Coin Fırlat" butonu çıkar; hangisi önce basarsa coin havaya atılır, bir kişinin basması yeter. Coin dönerken iki oyuncunun önüne de yazı ve tura seçenekleri gelir; hızlı davranan tarafını seçer, diğerine zorunlu olarak öteki taraf düşer. Coin hangi yüzüne düşerse o tarafı tutan oyuncu açılış şarkısını atar. Sonuç coin havaya atıldığı anda sunucuda belirlenir ama taraf seçilene kadar kimseye gönderilmez, yani kimse sonucu bilerek seçim yapamaz. ${seconds} saniye içinde kimse basmazsa coini sunucu atar.`,
+    genreQ: "Maçın türüne kim karar verir?",
+    genreA:
+      "Yazı turayı kaybeden oyuncu belirler. Karşısına iki oyuncunun profilinde ortak olan türlerden oluşan bir liste çıkar; ortak tür azsa liste herkesin bildiği popüler türlerle beşe tamamlanır. Seçilen türü rakip bir kez reddedebilir, ikinci seçim kesindir. Bu tür yalnızca açılış şarkısını bağlar; sonraki her şarkı bir öncekine göre değerlendirilir.",
+    sendQ: "Şarkıyı nasıl gönderirim?",
+    sendA: (maxMinutes: number) =>
+      `YouTube linkini kutuya yapıştır, "Kontrol Et" de. Şarkının adını, kanalını ve süresini görürsün; doğruysa gönder. ${maxMinutes} dakikadan uzun şarkılar ve canlı yayınlar kabul edilmez. Aynı şarkı bir maçta iki kez çalınamaz.`,
+    listenQ: "Neden şarkıyı sesi açık dinlemek zorundayım?",
+    listenA: (percent: number) =>
+      `Karar verebilmen için rakibinin şarkısının en az %${percent}'ini dinlemen gerekiyor. Sayaç yalnızca şarkı çalarken ve ses açıkken ilerler; sesi kısıp beklemek süreyi doldurmaz. İleri sarmak da işe yaramaz, çünkü sayaç gerçekten duyduğun saniyeleri sayar, aynı yeri tekrar dinlemek de ikinci kez sayılmaz. Sebebi basit: kart kararı da hakem kararı da şarkıyı gerçekten dinlemiş olmana dayanıyor.`,
+    skipQ: "Dinlemeden cevap verebilir miyim?",
+    skipA: (cost: number) =>
+      `Verebilirsin ama bedeli var: ${cost} puan. Atladığın şarkıya sarı kart gösterebilirsin, kırmızı kart gösteremezsin — dinlemediğin bir şarkıyla rakibini maçtan atamazsın. Atlama hakkında sınır yok ve atladığın herkes tarafından görülür.`,
+    cardsQ: "Sarı ve kırmızı kart nasıl kullanılır?",
+    cardsA: (yellows: number, yellowPenalty: number, redPenalty: number) =>
+      `Rakibinin şarkısı sana formatın dışında geldiyse kart gösterirsin: sarı "tam oturmadı", kırmızı "kesinlikle alakasız" demektir. Kart ancak hakem de şarkıyı uyumsuz bulursa geçerli olur; hakem şarkıyı beğenirse kartın boşa gider ve hiçbir şey değişmez. Geçerli sayılan sarı kart rakibine ${yellowPenalty}, kırmızı kart ${redPenalty} puana mal olur. Asıl mesele puan değil: futboldaki gibi, geçerli bir kırmızı kart maçı orada bitirir ve kartı yiyen oyuncu maçı kaybeder. İki geçerli sarı kart da aynı kapıya çıkar. Her oyuncunun bir maçta ${yellows} sarı ve bir kırmızı kart hakkı vardır.`,
+    refereeQ: "Hakem ne yapar?",
+    refereeA:
+      "Hakem bir yapay zekâ. Şarkının başlığından ve kanalından sanatçıyı, parçayı ve türü çıkarır, sonra onu ya bir önceki şarkıyla ya da açılışta anlaşılan türle karşılaştırır. Kararını ve gerekçesini yazar. Gerekçe üç dilde birden yazılır, çünkü aynı karar iki oyuncu ve bütün izleyiciler tarafından okunur. Hakemin kararı sen kart kararını verene kadar mühürlü kalır; kimse önce bakıp ona göre davranamaz.",
+    scoringQ: "Puanlar nasıl işler?",
+    scoringA: (match: number, mismatch: number, win: number, draw: number, minSongs: number) =>
+      `Hakem şarkını uyumlu bulursa +${match}, bulmazsa ${mismatch} puan. Açılış şarkısı da böyle puanlanır, çünkü onun da uyması gereken bir tür vardır. Üstüne geçerli kart cezaları ve atlama cezaları biner. Maç bittiğinde kazanan +${win}, berabere kalınırsa iki taraf da +${draw} puan alır; ama bu bonuslar ancak iki oyuncu da en az ${minSongs} şarkı attıysa verilir, yani maçı erken kesip bonus toplayamazsın. Kazandığın puanlar profiline ve liderlik tablosuna işler.`,
+    endQ: "Maç nasıl biter?",
+    endA: (minSongs: number, turnMinutes: number) =>
+      `En sık yolu anlaşmadır: iki oyuncu da en az ${minSongs} şarkı attıysa ve şarkı sayıları eşitse ikisi birden "Maçı Bitir" der, puanı yüksek olan kazanır. Bunun dışında maç kartla bitebilir, sıranı ${turnMinutes} dakika içinde oynamazsan hükmen bitebilir, ya da "Pes Et" dersen biter. İlk şarkı atılmadan önce fikrin değişirse maçtan puan kaybetmeden çıkabilirsin; tek tıkla oda kapanır ve kimseye hiçbir şey yazılmaz.`,
+    chatQ: "Sohbette neler yasak?",
+    chatA:
+      "Atılacak şarkı için ipucu vermek kesinlikle yasak: şarkı adı, sanatçı, albüm, söz ya da parçayı tanıtan herhangi bir işaret. Bunu bir hakem denetler ve kuralı çiğneyenin hesabı kalıcı olarak silinir. Çalınmış şarkılar hakkında konuşmak, tezahürat, şaka serbest; somut bir parça içermeyen tür istekleri de serbest. Link paylaşmak engellidir, küfür maskelenir, rahatsız eden birini bildirebilir ya da engelleyebilirsin. Sohbet maç bitince silinir.",
+    spectatorQ: "Başkalarının maçını izleyebilir miyim?",
+    spectatorA:
+      "Evet, oda kodu olan herkes izleyebilir. İzleyiciler yazı turayı, tür seçimini ve bütün şarkıları görür ama hiçbir butona basamaz. Oyuncular isterse maçı izleyicilere tamamen kapatabilir; isterlerse izlemeye açık bırakıp yalnızca izleyici sohbetini kapatabilirler. İzleyiciler puan kazanmaz.",
+    stillStuck: "Cevabını bulamadın mı?",
+    stillStuckLink: "Bize yaz",
+  },
+
+  contactPage: {
+    title: "İletişim",
+    intro:
+      "Bir sorun mu var, bir fikrin mi var, yoksa sadece merhaba mı demek istiyorsun? Yaz, okuyoruz.",
+    nameLabel: "Adın",
+    emailLabel: "E-posta adresin",
+    emailHint: "Cevap verebilmemiz için.",
+    subjectLabel: "Konu",
+    messageLabel: "Mesajın",
+    submit: "Gönder",
+    sending: "Gönderiliyor…",
+    successTitle: "Mesajın bize ulaştı.",
+    successBody: "Teşekkürler. Gerekiyorsa yazdığın adresten dönüş yaparız.",
+    another: "Bir mesaj daha yaz",
+    nameRequired: "Adını yazar mısın?",
+    emailInvalid: "Geçerli bir e-posta adresi gir.",
+    subjectRequired: "Kısa bir konu yaz.",
+    messageShort: "Mesajın en az 10 karakter olmalı.",
+    messageLong: (max: number) => `Mesajın en fazla ${max} karakter olabilir.`,
+    failed: "Mesaj gönderilemedi. Biraz sonra tekrar dener misin?",
   },
 
   kvkk: {

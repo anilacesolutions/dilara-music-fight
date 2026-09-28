@@ -9,6 +9,7 @@ export const errors = {
   sessionExpired: "Oturumun kapanmış, tekrar giriş yap.",
   notAPlayer: "Bu maçın oyuncusu değilsin.",
   spectatorsBlocked: "Oyuncular bu maçı izleyicilere kapattı.",
+  spectatorChatBlocked: "Oyuncular izleyici sohbetini kapattı; izleyebilirsin ama yazamazsın.",
 
   // Rooms
   noSuchRoom: "Böyle bir oda yok.",

@@ -5,6 +5,13 @@ import { GameError, isDuplicateKeyError } from "./errors";
 import { usersCollection } from "./mongodb";
 import { hashPassword, verifyAgainstDecoy, verifyPassword } from "./password";
 
+/**
+ * One spelling of a nickname for lookups. Non-ASCII letters can arrive in two
+ * Unicode shapes - "ğ" as one character or as g plus a combining breve - and
+ * they must land on the same account either way.
+ */
+const nicknameKey = (nickname: string): string => nickname.normalize("NFC").toLowerCase();
+
 export interface NewUser {
   firstName: string;
   lastName: string;
@@ -28,8 +35,8 @@ export async function createUser(input: NewUser): Promise<CreateUserResult> {
     await users.insertOne({
       firstName: input.firstName,
       lastName: input.lastName,
-      nickname: input.nickname,
-      nicknameLower: input.nickname.toLowerCase(),
+      nickname: input.nickname.normalize("NFC"),
+      nicknameLower: nicknameKey(input.nickname),
       email: input.email,
       emailLower: input.email.toLowerCase(),
       birthDate: input.birthDate,
@@ -53,7 +60,7 @@ export async function createUser(input: NewUser): Promise<CreateUserResult> {
 export async function authenticate(nickname: string, password: string): Promise<ObjectId | null> {
   const users = await usersCollection();
   const user = await users.findOne(
-    { nicknameLower: nickname.toLowerCase() },
+    { nicknameLower: nicknameKey(nickname) },
     { projection: { passwordHash: 1 } },
   );
 
@@ -76,7 +83,7 @@ export interface PublicProfile {
 export async function getPublicProfile(nickname: string): Promise<PublicProfile | null> {
   const users = await usersCollection();
   const user = await users.findOne(
-    { nicknameLower: nickname.toLowerCase() },
+    { nicknameLower: nicknameKey(nickname) },
     { projection: { nickname: 1, avatar: 1, genres: 1, totalPoints: 1, createdAt: 1 } },
   );
   if (!user) return null;
@@ -120,7 +127,7 @@ export async function listBlockedNicknames(userId: string): Promise<string[]> {
 
 export async function unblockUser(userId: string, nickname: string): Promise<void> {
   const users = await usersCollection();
-  const target = await users.findOne({ nicknameLower: nickname.toLowerCase() }, { projection: { _id: 1 } });
+  const target = await users.findOne({ nicknameLower: nicknameKey(nickname) }, { projection: { _id: 1 } });
   if (!target) return;
   await users.updateOne({ _id: new ObjectId(userId) }, { $pull: { blockedUserIds: target._id } });
 }

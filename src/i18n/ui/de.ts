@@ -16,6 +16,7 @@ export const ui: Ui = {
 
   header: {
     home: "Music Fight Startseite",
+    help: "Hilfe",
     login: "Anmelden",
     signup: "Registrieren",
     lobby: "Lobby",
@@ -101,6 +102,7 @@ export const ui: Ui = {
     required: (heard: string, needed: string) => `${heard} / ${needed} nötig`,
     requiredMark: "Nötige Hördauer",
     muted: "🔇 Zeit mit stummem Ton zählt nicht.",
+    pressPlay: "▶ Starte den Song — der Zähler läuft nur während der Wiedergabe.",
     rules: "Vorgespultes zählt nicht, und dieselbe Stelle noch einmal zu hören bringt auch nichts.",
   },
 
@@ -159,6 +161,7 @@ export const ui: Ui = {
     reply: (match: number, mismatch: number) =>
       `Wähle einen Song nah am Format deines Gegners. Passt er, gibt es +${match}, daneben ${mismatch}.`,
     urlLabel: "YouTube-Link",
+    clear: "Link löschen",
     check: "Prüfen",
     checking: "Wird geprüft…",
     checkFailed: "Der Link konnte nicht geprüft werden.",
@@ -187,7 +190,7 @@ export const ui: Ui = {
     skipButton: (cost: number) => `⏭ Ohne Hören überspringen (−${cost} Punkte)`,
     skipCancel: "Doch nicht, weiter hören",
     footnote:
-      "Findet auch der Schiedsrichter den Song unpassend, kassiert dein Gegner zusätzlich die Kartenstrafe. Akzeptiert er ihn, war deine Karte umsonst.",
+      "Findet auch der Schiedsrichter den Song unpassend, zählt die Karte: dein Gegner kassiert die Strafe und sie kommt auf sein Konto. Eine Rote beendet das Match sofort und er verliert es, die zweite Gelbe ebenso. Akzeptiert der Schiedsrichter den Song, war deine Karte umsonst.",
   },
 
   chat: {
@@ -196,6 +199,7 @@ export const ui: Ui = {
     empty: "Schreib die erste Nachricht.",
     closed: "Der Chat ist geschlossen.",
     placeholder: "Nachricht schreiben…",
+    mutedSpectator: "Die Spieler haben den Zuschauer-Chat ausgeschaltet. Mitlesen geht, schreiben nicht.",
     inputLabel: "Chatnachricht",
     send: "Senden",
     quickSend: (emoji: string) => `${emoji} senden`,
@@ -232,7 +236,9 @@ export const ui: Ui = {
     leaveNote: "Es wurde noch kein Song gespielt: niemand bekommt Punkte, der Raum schließt.",
     leaveConfirm: "Ja, verlassen",
     spectatorsOn: "Für Zuschauer offen",
-    spectatorsHint: "Jeder mit dem Raumcode kann zusehen und mitreden.",
+    spectatorsHint: "Jeder mit dem Raumcode kann das Match ansehen.",
+    spectatorChatOn: "Zuschauer dürfen schreiben",
+    spectatorChatHint: "Ausgeschaltet können Zuschauer den Chat lesen, aber nichts posten.",
   },
 
   clock: {
@@ -280,6 +286,8 @@ export const ui: Ui = {
     reasonSurrenderTheirs: (name: string) => `${name} hat aufgegeben.`,
     reasonTimeoutMine: "Du hast nicht rechtzeitig einen Song geschickt, das Match ging an deinen Gegner.",
     reasonTimeoutTheirs: (name: string) => `${name} hat nicht rechtzeitig einen Song geschickt — Sieg ohne Spiel.`,
+    reasonCardsMine: "Deine Karten waren voll, du hast Platzverweis bekommen und das Match endete dort.",
+    reasonCardsTheirs: (name: string) => `${name} hat Platzverweis bekommen, damit endete das Match.`,
     reasonViolation: (name: string) => `${name} wurde wegen eines Regelverstoßes aus dem Match entfernt.`,
     bonusCancelled: "Niemand wurde bewertet; beide Punktestände bleiben, wie sie waren.",
     bonusNone: (min: number) => `Kein Bonus: Das Match endete, bevor beide ${min} Songs erreicht hatten.`,
@@ -348,8 +356,9 @@ export const ui: Ui = {
     waitingForOpponent: "Warte auf einen Gegner…",
     onTurn: "● am Zug",
     wantsToEnd: "will beenden ✓",
-    yellowCards: (left: number, total: number) => `Gelbe Karten: ${left}/${total}`,
-    redCards: (left: number, total: number) => `Rote Karten: ${left}/${total}`,
+    bookedYellow: (count: number, limit: number) =>
+      `Gelbe Karten gegen: ${count}/${limit} — bei ${limit} ist das Match vorbei`,
+    bookedRed: (count: number) => `Rote Karten gegen: ${count}/1 — eine Rote beendet das Match`,
   },
 
   leaderboard: {

@@ -19,6 +19,12 @@ export const SCORING = {
 
 export const CARDS_PER_PLAYER = { yellow: 2, red: 1 } as const;
 
+/**
+ * Football's rule: an upheld red ends the match on the spot, and so does a
+ * second upheld yellow. A card the referee waves away books nobody.
+ */
+export const YELLOWS_BEFORE_SENDING_OFF = 2;
+
 export const MAX_TRACK_SECONDS = 10 * 60;
 
 export const MIN_SIGNUP_AGE = 18;

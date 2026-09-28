@@ -92,6 +92,7 @@ export function YouTubeStage({
     let reported = false;
     let lastTime = -1;
     let lastWall = 0;
+    const softwareVolume = !window.matchMedia("(pointer: coarse)").matches;
 
     const reportIfDone = () => {
       if (!reported && coverage.size >= required) {
@@ -134,7 +135,11 @@ export function YouTubeStage({
           return;
         }
 
-        const muted = player.isMuted() || player.getVolume() === 0;
+        // Phones and tablets hand the volume to the hardware buttons: setVolume
+        // does nothing there and getVolume reports whatever it likes, so a zero
+        // reading means "cannot tell", not "silent", and the counter must not
+        // stall on it. An explicit mute is reported honestly everywhere.
+        const muted = player.isMuted() || (softwareVolume && player.getVolume() === 0);
         setSilent(muted);
 
         const now = player.getCurrentTime();
@@ -205,7 +210,10 @@ export function YouTubeStage({
             />
           </div>
 
-          <p className="mt-2 text-xs text-muted">{silent ? t.muted : t.rules}</p>
+          {/* Phones never start a video on their own, and a still counter looks broken. */}
+          <p className={`mt-2 text-xs ${!playing && heard === 0 ? "text-sun" : "text-muted"}`}>
+            {silent ? t.muted : !playing && heard === 0 ? t.pressPlay : t.rules}
+          </p>
         </div>
       )}
     </div>

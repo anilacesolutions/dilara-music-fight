@@ -80,17 +80,41 @@ export function SendSong({ isOpening, genre, busy, onSend }: SendSongProps) {
       </p>
 
       <form onSubmit={check} className="mt-5 flex flex-col gap-2 sm:flex-row">
-        <input
-          value={url}
-          onChange={(event) => {
-            setUrl(event.target.value);
-            setPreview(null);
-            setProblem(null);
-          }}
-          placeholder="https://www.youtube.com/watch?v=…"
-          aria-label={t.urlLabel}
-          className="field flex-1"
-        />
+        {/* A pasted link is long and awkward to wipe on a phone, so it gets its own button. */}
+        <div className="relative flex-1">
+          <input
+            value={url}
+            onChange={(event) => {
+              setUrl(event.target.value);
+              setPreview(null);
+              setProblem(null);
+            }}
+            type="url"
+            inputMode="url"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            placeholder="https://www.youtube.com/watch?v=…"
+            aria-label={t.urlLabel}
+            className="field w-full pr-11"
+          />
+          {url !== "" && (
+            <button
+              type="button"
+              onClick={() => {
+                setUrl("");
+                setPreview(null);
+                setProblem(null);
+              }}
+              aria-label={t.clear}
+              title={t.clear}
+              className="absolute right-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-lg text-muted transition hover:bg-surface-2 hover:text-ink-100"
+            >
+              ✕
+            </button>
+          )}
+        </div>
         <button type="submit" disabled={checking || !url.trim()} className="btn btn-ghost shrink-0">
           {checking ? t.checking : t.check}
         </button>

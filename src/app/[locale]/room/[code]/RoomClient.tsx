@@ -330,6 +330,7 @@ export default function RoomClient({ initialRoom, initialMessages, initiallyWatc
               onSurrender={() => void act("surrender", {})}
               onCancel={() => void act("cancel", {})}
               onToggleSpectators={(allowed) => void act("settings", { spectatorsAllowed: allowed })}
+              onToggleSpectatorChat={(allowed) => void act("settings", { spectatorChatAllowed: allowed })}
             />
           )}
           {showChat && (
@@ -337,6 +338,7 @@ export default function RoomClient({ initialRoom, initialMessages, initiallyWatc
               code={code}
               messages={messages}
               open={live}
+              muted={room.me === null && !room.spectatorChatAllowed}
               onMessage={(message) => addMessages([message])}
               onBlocked={(nickname) =>
                 setMessages((current) => current.filter((message) => message.nickname !== nickname))

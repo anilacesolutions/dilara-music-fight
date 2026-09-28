@@ -26,6 +26,7 @@ import {
   TURN_GRACE_MS,
   TURN_SECONDS,
   WAITING_ROOM_MINUTES,
+  YELLOWS_BEFORE_SENDING_OFF,
   listenRatio,
 } from "./rules";
 import type {
@@ -135,6 +136,8 @@ function requireActive(room: Room): void {
 
 /** Rooms written before a setting existed default to open. */
 const spectatorsAllowed = (room: Room) => room.spectatorsAllowed !== false;
+/** Rooms created before players could mute the gallery default to letting it talk. */
+const spectatorChatAllowed = (room: Room) => room.spectatorChatAllowed !== false;
 
 // ─── Match setup: the coin and the genre ────────────────────────────────────
 
@@ -292,6 +295,23 @@ function songCounts(room: Room): Record<PlayerSlot, number> {
   return counts;
 }
 
+/** A card counts only where the referee agreed with it; the rest book nobody. */
+const upheld = (move: Move): boolean => move.card !== null && move.verdict.kind === "mismatch";
+
+/** Cards each player has been shown and the referee upheld, by colour. */
+function bookings(room: Room): Record<PlayerSlot, Record<CardColor, number>> {
+  const tally = { a: { yellow: 0, red: 0 }, b: { yellow: 0, red: 0 } };
+  for (const move of room.moves) {
+    if (move.revealed && upheld(move) && move.card) tally[move.slot][move.card] += 1;
+  }
+  return tally;
+}
+
+/** Sent off, as in football: one upheld red, or a second upheld yellow. */
+function sentOff(booked: Record<CardColor, number>): boolean {
+  return booked.red > 0 || booked.yellow >= YELLOWS_BEFORE_SENDING_OFF;
+}
+
 function reachedMinimum(room: Room): boolean {
   const { a, b } = songCounts(room);
   return a >= MIN_SONGS_PER_PLAYER && b >= MIN_SONGS_PER_PLAYER;
@@ -421,6 +441,7 @@ export function toRoomView(room: Room, viewerId: string, spectatorCount = 0): Ro
   const pending = room.moves.at(-1);
   const hasPending = pending !== undefined && !pending.revealed;
   const live = room.status === "waiting" || room.status === "active";
+  const booked = bookings(room);
 
   let phase: Phase;
   if (room.status === "finished") phase = "finished";
@@ -443,6 +464,7 @@ export function toRoomView(room: Room, viewerId: string, spectatorCount = 0): Ro
       avatar,
       score,
       cards,
+      booked: booked[slot],
       wantsToEnd,
     })),
     moves: room.moves.map((move) => ({
@@ -468,6 +490,7 @@ export function toRoomView(room: Room, viewerId: string, spectatorCount = 0): Ro
     turnDeadline: turnDeadline(room),
     canAgreeToEnd: canAgreeToEnd(room),
     spectatorsAllowed: spectatorsAllowed(room),
+    spectatorChatAllowed: spectatorChatAllowed(room),
     spectatorCount,
     endReason: room.endReason ?? null,
     forfeitedBy: room.forfeitedBy ?? null,
@@ -557,6 +580,7 @@ export async function createRoom(user: CurrentUser): Promise<string> {
       winner: null,
       setup: emptySetup(),
       spectatorsAllowed: true,
+      spectatorChatAllowed: true,
       startedAt: null,
       endReason: null,
       forfeitedBy: null,
@@ -930,6 +954,10 @@ export async function decide(
     return result;
   });
 
+  // A card the referee upheld can end the match here and now, football style.
+  if (sentOff(bookings(updated)[pending.slot])) {
+    return viewFor(await finishMatch(room.code, { reason: "cards", loser: pending.slot }), user);
+  }
   return viewFor(updated, user);
 }
 
@@ -963,16 +991,27 @@ export async function surrender(code: string, user: CurrentUser): Promise<RoomVi
   return viewFor(await finishMatch(room.code, { reason: "surrender", loser: me }), user);
 }
 
-/** Either player can open or close the match to spectators at any time before it ends. */
-export async function setSpectatorsAllowed(code: string, user: CurrentUser, allowed: boolean): Promise<RoomView> {
+/**
+ * Either player may open or close the match to spectators, and decide whether
+ * the gallery may talk, at any time before the match ends.
+ */
+export async function setRoomSettings(
+  code: string,
+  user: CurrentUser,
+  settings: { spectatorsAllowed?: boolean; spectatorChatAllowed?: boolean },
+): Promise<RoomView> {
   const room = await loadCurrentRoom(code);
   requireSlot(room, user);
   if (room.status === "finished" || room.status === "expired") throw new GameError("matchOver", 409);
 
+  const changes: Partial<Room> = { updatedAt: new Date() };
+  if (settings.spectatorsAllowed !== undefined) changes.spectatorsAllowed = settings.spectatorsAllowed;
+  if (settings.spectatorChatAllowed !== undefined) changes.spectatorChatAllowed = settings.spectatorChatAllowed;
+
   const rooms = await roomsCollection();
   const updated = await rooms.findOneAndUpdate(
     { code: room.code, status: { $in: ["waiting", "active"] } },
-    { $set: { spectatorsAllowed: allowed, updatedAt: new Date() } },
+    { $set: changes },
     { returnDocument: "after", projection: { _id: 0 } },
   );
   if (!updated) throw new GameError("stateChanged", 409);
@@ -987,7 +1026,11 @@ export async function roomForChat(code: string, user: CurrentUser): Promise<{ ro
   }
 
   const slot = slotOf(room, user.id);
-  if (!slot && !spectatorsAllowed(room)) throw new GameError("spectatorsBlocked", 403);
+  if (!slot) {
+    if (!spectatorsAllowed(room)) throw new GameError("spectatorsBlocked", 403);
+    // Reading the chat stays open; only writing is the players' to switch off.
+    if (!spectatorChatAllowed(room)) throw new GameError("spectatorChatBlocked", 403);
+  }
   return { room, role: slot ?? "spectator" };
 }
 

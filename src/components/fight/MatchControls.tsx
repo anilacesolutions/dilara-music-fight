@@ -15,6 +15,7 @@ interface MatchControlsProps {
   /** Walk away before the first song, with nothing scored either way. */
   onCancel: () => void;
   onToggleSpectators: (allowed: boolean) => void;
+  onToggleSpectatorChat: (allowed: boolean) => void;
 }
 
 export function MatchControls({
@@ -26,6 +27,7 @@ export function MatchControls({
   onSurrender,
   onCancel,
   onToggleSpectators,
+  onToggleSpectatorChat,
 }: MatchControlsProps) {
   const [confirming, setConfirming] = useState(false);
   const [leaving, setLeaving] = useState(false);
@@ -149,6 +151,25 @@ export function MatchControls({
           checked={room.spectatorsAllowed}
           disabled={busy}
           onChange={(event) => onToggleSpectators(event.target.checked)}
+          className="h-5 w-5 shrink-0 accent-volt-500"
+        />
+      </label>
+
+      {/* Only worth offering while there is a gallery to mute. */}
+      <label
+        className={`mt-3 flex items-center justify-between gap-3 text-sm ${
+          room.spectatorsAllowed ? "cursor-pointer" : "opacity-50"
+        }`}
+      >
+        <span>
+          <span className="font-semibold">{t.spectatorChatOn}</span>
+          <span className="block text-[11px] text-muted">{t.spectatorChatHint}</span>
+        </span>
+        <input
+          type="checkbox"
+          checked={room.spectatorChatAllowed}
+          disabled={busy || !room.spectatorsAllowed}
+          onChange={(event) => onToggleSpectatorChat(event.target.checked)}
           className="h-5 w-5 shrink-0 accent-volt-500"
         />
       </label>

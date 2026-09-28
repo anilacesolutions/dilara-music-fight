@@ -11,6 +11,8 @@ export const site: Site = {
   },
 
   footer: {
+    help: "Hilfe",
+    contact: "Kontakt",
     privacy: "Datenschutzerklärung",
   },
 
@@ -54,7 +56,7 @@ export const site: Site = {
       {
         icon: "🟥",
         title: "Zeig deine Karte",
-        body: "Hat der Song deines Gegners das Format gesprengt? Zieh Gelb oder Rot. Das letzte Wort hat der Schiedsrichter.",
+        body: "Hat der Song deines Gegners das Format gesprengt? Zieh Gelb oder Rot. Stimmt der Schiedsrichter zu, beendet Rot das Match.",
       },
     ],
 
@@ -132,7 +134,7 @@ export const site: Site = {
           },
           {
             icon: "🟨🟥",
-            text: `Jeder Spieler hat pro Match ${p.yellow} Gelbe und ${p.red} Rote Karten. Gelb heißt „passt nicht ganz“, Rot heißt „völlig daneben“. Sieht der Schiedsrichter das anders, ist die Karte verbrannt und nichts ändert sich.`,
+            text: `Jeder Spieler hat pro Match ${p.yellow} Gelbe und ${p.red} Rote Karten. Eine Karte zählt nur, wenn der Schiedsrichter zustimmt: Rot beendet das Match sofort und wer sie bekommt, verliert es; die zweite Gelbe ebenso. Sieht er es anders, ist die Karte verbrannt und nichts ändert sich.`,
           },
           {
             icon: "🎧",
@@ -222,7 +224,7 @@ export const site: Site = {
       {
         icon: "🎯",
         title: "Verbrenn deine Karten nicht zu früh",
-        body: `Du hast pro Match ${p.yellow} Gelbe und ${p.red} Rote Karten. Sieht es der Schiedsrichter anders, war die Karte umsonst.`,
+        body: `Du hast pro Match ${p.yellow} Gelbe und ${p.red} Rote Karten. Eine gültige Rote oder die zweite Gelbe beendet das Match; sieht es der Schiedsrichter anders, war die Karte umsonst.`,
         tone: "from-flare-500/15",
       },
       {
@@ -285,7 +287,10 @@ export const site: Site = {
     firstNameMax: "Dein Vorname darf höchstens 40 Zeichen haben.",
     lastNameMin: "Dein Nachname braucht mindestens 2 Zeichen.",
     lastNameMax: "Dein Nachname darf höchstens 40 Zeichen haben.",
-    nickname: "3-20 Zeichen; Buchstaben, Ziffern und Unterstriche.",
+    nicknameShort: "Ein Nickname braucht mindestens 3 Zeichen.",
+    nicknameLong: "Ein Nickname darf höchstens 20 Zeichen haben.",
+    nicknameChars: (chars: string) =>
+      `Das geht im Nickname nicht: ${chars}. Buchstaben jedes Alphabets, Ziffern und Unterstriche sind erlaubt.`,
     email: "Gib eine gültige E-Mail-Adresse ein.",
     birthDateRequired: "Gib dein Geburtsdatum ein.",
     birthDateInvalid: "Gib ein gültiges Datum ein.",
@@ -310,6 +315,76 @@ export const site: Site = {
     metaTitle: (code: string) => `Raum ${code}`,
     closedNote: "Öffnen die Spieler das Match wieder, kannst du hier zusehen.",
     backToLobby: "Zurück zur Lobby",
+  },
+
+  help: {
+    title: "Hilfe",
+    intro: "Hier steht, was du wissen willst. Tipp auf eine Frage, dann klappt die Antwort auf.",
+    playQ: "Wie spielt man Music Fight?",
+    playA:
+      "Zwei Spieler schicken abwechselnd Songs von YouTube. Jeder Song muss nah am Format des vorherigen liegen: Genre, Energie, Ära, Produktion. Der Schiedsrichter entscheidet bei jedem Song, ob er passt oder nicht. Passt er, gibt es Punkte, sonst kostet er welche. Im Lauf eines Matches driftet die Musik irgendwohin, wo keiner von euch sie geplant hat — genau das macht den Reiz aus.",
+    signupQ: "Wie melde ich mich an?",
+    signupA: (minGenres: number, minAge: number) =>
+      `Name, Nickname, E-Mail, Geburtsdatum und ein Passwort genügen. Du musst über ${minAge} sein, um die Seite zu nutzen. Dazu wählst du mindestens ${minGenres} Genres: Das Eröffnungsgenre eines Matches kommt aus den Genres, die beide Spieler gemeinsam haben, deshalb darf diese Liste nicht leer sein. Auf der Seite ist nur dein Nickname sichtbar; dein echter Name und deine E-Mail werden niemandem gezeigt.`,
+    startQ: "Wie starte ich ein Match?",
+    startA:
+      "Öffne in der Lobby ein neues Match, dann bekommst du einen Raumcode. Schick den Code an einen Freund, der ihn in der Lobby einträgt und dazukommt. Wer dazukommt, kann den zweiten Platz einnehmen oder einfach zusehen.",
+    coinQ: "Wie läuft der Münzwurf ab?",
+    coinA: (seconds: number) =>
+      `Sobald beide Spieler im Raum sind, erscheint der Knopf „Münze werfen“; wer zuerst drückt, wirft sie, und einer von euch reicht. Während die Münze fliegt, erscheinen bei beiden Spielern Kopf und Zahl; wer schneller ist, nimmt eine Seite, die andere fällt dem Gegner zu. Wer die gefallene Seite hält, schickt den Eröffnungssong. Das Ergebnis wird auf dem Server gezogen, sobald die Münze hochgeht, aber es wird niemandem geschickt, bevor eine Seite gewählt ist — so kann niemand mit Wissen um das Ergebnis wählen. Drückt innerhalb von ${seconds} Sekunden niemand, wirft der Server.`,
+    genreQ: "Wer bestimmt das Genre des Matches?",
+    genreA:
+      "Wer den Wurf verliert, bestimmt es. Vorgeschlagen wird eine Liste aus den Genres, die beide Profile gemeinsam haben; gibt es wenig Überschneidung, wird sie mit breit bekannten Genres auf fünf aufgefüllt. Der Gegner darf die Wahl einmal ablehnen, die zweite Wahl ist endgültig. Das Genre bindet nur den Eröffnungssong; jeder weitere Song wird am vorherigen gemessen.",
+    sendQ: "Wie schicke ich einen Song?",
+    sendA: (maxMinutes: number) =>
+      `Füge den YouTube-Link ins Feld ein und drücke „Prüfen“. Du siehst Titel, Kanal und Länge; stimmt alles, schick ihn ab. Songs über ${maxMinutes} Minuten und Livestreams werden abgelehnt. Derselbe Song kann in einem Match nicht zweimal laufen.`,
+    listenQ: "Warum muss ich mit Ton hören?",
+    listenA: (percent: number) =>
+      `Bevor du über den Song deines Gegners entscheiden kannst, musst du mindestens ${percent}% davon hören. Der Zähler läuft nur, während der Song spielt und der Ton an ist; leise drehen und warten füllt den Balken nicht. Vorspulen hilft ebenso wenig, denn gezählt werden die Sekunden, die du wirklich gehört hast, und dieselbe Stelle zweimal zu hören zählt nicht doppelt. Der Grund ist einfach: Deine Kartenentscheidung und das Urteil des Schiedsrichters setzen voraus, dass du wirklich zugehört hast.`,
+    skipQ: "Kann ich ohne Hören antworten?",
+    skipA: (cost: number) =>
+      `Kannst du, aber es kostet: ${cost} Punkte. Eine Gelbe Karte darfst du auf einen übersprungenen Song immer noch zeigen, eine Rote nicht — mit einem Song, den du nie gehört hast, wirfst du niemanden aus dem Match. Überspringen ist unbegrenzt, und alle sehen, dass du es getan hast.`,
+    cardsQ: "Wie funktionieren Gelbe und Rote Karten?",
+    cardsA: (yellows: number, yellowPenalty: number, redPenalty: number) =>
+      `Wenn dir der Song deines Gegners unpassend vorkommt, zeigst du eine Karte: Gelb heißt „passt nicht ganz“, Rot heißt „völlig daneben“. Eine Karte zählt nur, wenn auch der Schiedsrichter den Song unpassend findet; akzeptiert er ihn, war deine Karte umsonst und nichts ändert sich. Eine gültige Gelbe kostet deinen Gegner ${yellowPenalty} Punkte, eine Rote ${redPenalty}. Die Punkte sind nicht der eigentliche Einsatz: Wie im Fußball beendet eine gültige Rote das Match sofort, und wer sie bekommen hat, verliert es. Zwei gültige Gelbe bewirken dasselbe. Jeder Spieler hat pro Match ${yellows} Gelbe und eine Rote.`,
+    refereeQ: "Was macht der Schiedsrichter?",
+    refereeA:
+      "Der Schiedsrichter ist eine KI. Aus Titel und Kanal erschließt er Künstler, Stück und Genre und vergleicht das dann mit dem vorherigen Song oder, beim Eröffnungszug, mit dem vereinbarten Genre. Er schreibt sein Urteil und die Begründung dazu. Die Begründung entsteht gleich in allen drei Sprachen, denn dasselbe Urteil lesen beide Spieler und alle Zuschauer. Das Urteil bleibt versiegelt, bis du deine Kartenentscheidung getroffen hast — niemand kann vorher nachsehen und sich danach richten.",
+    scoringQ: "Wie werden Punkte vergeben?",
+    scoringA: (match: number, mismatch: number, win: number, draw: number, minSongs: number) =>
+      `Ein Song, den der Schiedsrichter annimmt, bringt +${match}, ein abgelehnter ${mismatch}. Der Eröffnungssong zählt genauso, denn auch er hat ein Genre, dem er gerecht werden muss. Karten- und Überspring-Strafen kommen obendrauf. Am Ende bekommt der Sieger +${win}, bei einem Unentschieden beide +${draw} — diese Boni gibt es aber nur, wenn beide mindestens ${minSongs} Songs geschickt haben, damit niemand das Match abkürzt, um sie einzusammeln. Alles, was du verdienst, landet in deinem Profil und in der Bestenliste.`,
+    endQ: "Wie endet ein Match?",
+    endA: (minSongs: number, turnMinutes: number) =>
+      `Meistens im Einvernehmen: Sobald beide mindestens ${minSongs} Songs geschickt haben und der Stand gleich ist, drücken beide auf „Match beenden“, und die höhere Punktzahl gewinnt. Ein Match kann auch durch Karten enden, kampflos, wenn du deine ${turnMinutes} Minuten verstreichen lässt, oder wenn du auf „Aufgeben“ drückst. Überlegst du es dir, bevor der erste Song läuft, steigst du ohne Verlust aus: Ein Druck schließt den Raum, und niemandem wird etwas angerechnet.`,
+    chatQ: "Was ist im Chat verboten?",
+    chatA:
+      "Einen Songtipp zu geben ist streng verboten: Titel, Künstler, Album, Textzeile oder jeder andere Hinweis, der auf ein Stück zeigt. Ein Schiedsrichter liest den Chat daraufhin mit, und wer die Regel bricht, verliert sein Konto endgültig. Über bereits gespielte Songs zu reden, anzufeuern und zu scherzen ist erlaubt, ebenso Genre-Wünsche ohne konkretes Stück. Links sind gesperrt, Schimpfwörter werden maskiert, und wer dich stört, lässt sich melden oder blockieren. Der Chat wird gelöscht, wenn das Match endet.",
+    spectatorQ: "Kann ich Matches anderer ansehen?",
+    spectatorA:
+      "Ja — wer den Raumcode hat, kann zusehen. Zuschauer sehen den Münzwurf, die Genre-Wahl und jeden Song, können aber nichts drücken. Die Spieler können das Match ganz für Zuschauer schließen oder es offen lassen und nur den Zuschauer-Chat abschalten. Zuschauer bekommen keine Punkte.",
+    stillStuck: "Antwort nicht gefunden?",
+    stillStuckLink: "Schreib uns",
+  },
+
+  contactPage: {
+    title: "Kontakt",
+    intro: "Etwas kaputt, eine Idee, oder einfach nur Hallo? Schreib uns — wir lesen mit.",
+    nameLabel: "Dein Name",
+    emailLabel: "Deine E-Mail-Adresse",
+    emailHint: "Damit wir antworten können.",
+    subjectLabel: "Betreff",
+    messageLabel: "Deine Nachricht",
+    submit: "Senden",
+    sending: "Wird gesendet…",
+    successTitle: "Deine Nachricht ist angekommen.",
+    successBody: "Danke. Wenn sie eine Antwort braucht, schreiben wir an die angegebene Adresse.",
+    another: "Noch eine Nachricht schreiben",
+    nameRequired: "Verrätst du uns deinen Namen?",
+    emailInvalid: "Bitte gib eine gültige E-Mail-Adresse ein.",
+    subjectRequired: "Gib einen kurzen Betreff an.",
+    messageShort: "Deine Nachricht braucht mindestens 10 Zeichen.",
+    messageLong: (max: number) => `Deine Nachricht darf höchstens ${max} Zeichen haben.`,
+    failed: "Die Nachricht konnte nicht gesendet werden. Versuchst du es gleich noch einmal?",
   },
 
   kvkk: {

@@ -83,6 +83,18 @@ export interface ModerationLogDoc {
   createdAt: Date;
 }
 
+/** A note sent through the contact form. Kept here; nothing forwards it anywhere. */
+export interface ContactMessageDoc {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  /** The account that sent it, when the sender happened to be signed in. */
+  userId: ObjectId | null;
+  locale: string;
+  createdAt: Date;
+}
+
 /**
  * Next.js reloads modules on every edit in dev, which would open a new pool
  * each time. Cache the client (and the one-off index setup) on globalThis.
@@ -127,6 +139,7 @@ async function ensureIndexes(db: Db): Promise<void> {
     db.collection("presence").createIndex({ roomCode: 1, userId: 1 }, { unique: true }),
     db.collection("presence").createIndex({ lastSeenAt: 1 }, { expireAfterSeconds: 300 }),
     db.collection("reports").createIndex({ createdAt: -1 }),
+    db.collection("contact_messages").createIndex({ createdAt: -1 }),
   ]);
 }
 
@@ -189,4 +202,8 @@ export async function withTransaction<T>(work: (session: ClientSession) => Promi
   } finally {
     await session.endSession();
   }
+}
+
+export async function contactMessagesCollection(): Promise<Collection<ContactMessageDoc>> {
+  return (await getDb()).collection<ContactMessageDoc>("contact_messages");
 }

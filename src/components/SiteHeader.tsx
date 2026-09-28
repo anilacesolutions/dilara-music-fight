@@ -12,6 +12,8 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4">
         <Logo />
         <div className="flex items-center gap-2">
+          {/* Phones reach Help from the footer; up here it would crowd the nav. */}
+          <HelpLink />
           <LanguageSwitcher />
           {/* Session lookup streams in on its own so the rest of the page isn't held back. */}
           <Suspense fallback={<div className="h-9 w-40 animate-breathe rounded-xl bg-surface-2" />}>
@@ -20,6 +22,19 @@ export function SiteHeader() {
         </div>
       </div>
     </header>
+  );
+}
+
+async function HelpLink() {
+  const ui = await getUi();
+
+  return (
+    <Link
+      href="/help"
+      className="hidden rounded-xl px-3 py-2 text-sm text-ink-200 transition hover:bg-surface-2 hover:text-foreground sm:inline-block"
+    >
+      {ui.header.help}
+    </Link>
   );
 }
 

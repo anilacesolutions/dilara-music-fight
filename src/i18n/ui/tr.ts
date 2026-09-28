@@ -20,6 +20,7 @@ export const ui = {
 
   header: {
     home: "Music Fight ana sayfa",
+    help: "Yardım",
     login: "Giriş Yap",
     signup: "Üye Ol",
     lobby: "Lobi",
@@ -103,6 +104,7 @@ export const ui = {
     required: (heard: string, needed: string) => `${heard} / ${needed} gerekli`,
     requiredMark: "Gereken dinleme",
     muted: "🔇 Ses kapalıyken geçen süre sayılmıyor.",
+    pressPlay: "▶ Şarkıyı başlat — sayaç ancak çalarken ilerler.",
     rules: "İleri sarılan kısımlar sayılmaz; aynı yeri tekrar dinlemek de süreyi artırmaz.",
   },
 
@@ -160,6 +162,7 @@ export const ui = {
     reply: (match: number, mismatch: number) =>
       `Rakibinin şarkısının formatına yakın bir şarkı seç. Uyarsa +${match}, alakasızsa ${mismatch}.`,
     urlLabel: "YouTube linki",
+    clear: "Linki temizle",
     check: "Kontrol Et",
     checking: "Kontrol ediliyor…",
     checkFailed: "Link kontrol edilemedi.",
@@ -187,7 +190,8 @@ export const ui = {
     left: (left: number, penalty: number) => `${left} kaldı · ${penalty}`,
     skipButton: (cost: number) => `⏭ Dinlemeden Atla (−${cost} puan)`,
     skipCancel: "Vazgeç, dinlemeye devam et",
-    footnote: "Hakem de şarkıyı uyumsuz bulursa rakibin kart cezası yer. Hakem uyumlu bulursa kartın boşa gider.",
+    footnote:
+      "Hakem de şarkıyı uyumsuz bulursa kart geçerli sayılır: rakibin puan cezası yer ve kart siciline işlenir. Kırmızıysa maç orada biter, rakibin yenik sayılır; ikinci sarıda da aynısı olur. Hakem şarkıyı uyumlu bulursa kartın boşa gider.",
   },
 
   chat: {
@@ -196,6 +200,7 @@ export const ui = {
     empty: "İlk mesajı sen yaz.",
     closed: "Sohbet kapandı.",
     placeholder: "Mesaj yaz…",
+    mutedSpectator: "Oyuncular izleyici sohbetini kapattı. Mesajları okuyabilirsin ama yazamazsın.",
     inputLabel: "Sohbet mesajı",
     send: "Gönder",
     quickSend: (emoji: string) => `${emoji} gönder`,
@@ -231,7 +236,9 @@ export const ui = {
     leaveNote: "Henüz şarkı atılmadı: kimseye puan yazılmaz, oda kapanır.",
     leaveConfirm: "Evet, ayrıl",
     spectatorsOn: "İzleyicilere açık",
-    spectatorsHint: "Oda koduyla herkes izleyip sohbete katılabilir.",
+    spectatorsHint: "Oda koduyla herkes maçı izleyebilir.",
+    spectatorChatOn: "İzleyiciler mesaj atabilsin",
+    spectatorChatHint: "Kapatırsan izleyiciler sohbeti okur ama yazamaz.",
   },
 
   clock: {
@@ -279,6 +286,8 @@ export const ui = {
     reasonSurrenderTheirs: (name: string) => `${name} pes etti.`,
     reasonTimeoutMine: "Süren içinde şarkı göndermediğin için maç hükmen bitti.",
     reasonTimeoutTheirs: (name: string) => `${name} süresi içinde şarkı göndermedi, hükmen galibiyet.`,
+    reasonCardsMine: "Kartların doldu, oyun dışı kaldın ve maç orada bitti.",
+    reasonCardsTheirs: (name: string) => `${name} kart sınırını doldurup oyun dışı kaldı, maç orada bitti.`,
     reasonViolation: (name: string) => `${name} kuralları çiğnediği için maçtan çıkarıldı.`,
     bonusCancelled: "Hiç kimseye puan yazılmadı; iki oyuncunun da toplamı olduğu gibi kaldı.",
     bonusNone: (min: number) => `Bonus yok: iki oyuncu da en az ${min} şarkı atmadan maç bitti.`,
@@ -346,8 +355,9 @@ export const ui = {
     waitingForOpponent: "Rakip bekleniyor…",
     onTurn: "● sırada",
     wantsToEnd: "bitirmek istiyor ✓",
-    yellowCards: (left: number, total: number) => `Sarı kart: ${left}/${total}`,
-    redCards: (left: number, total: number) => `Kırmızı kart: ${left}/${total}`,
+    bookedYellow: (count: number, limit: number) =>
+      `Yediği sarı kart: ${count}/${limit} — ${limit} sarıda maç biter`,
+    bookedRed: (count: number) => `Yediği kırmızı kart: ${count}/1 — kırmızıda maç biter`,
   },
 
   leaderboard: {

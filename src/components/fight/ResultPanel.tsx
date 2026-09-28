@@ -45,6 +45,9 @@ export function ResultPanel({ room }: { room: RoomView }) {
     case "timeout":
       reason = iForfeited ? t.reasonTimeoutMine : t.reasonTimeoutTheirs(loser);
       break;
+    case "cards":
+      reason = iForfeited ? t.reasonCardsMine : t.reasonCardsTheirs(loser);
+      break;
     case "violation":
       reason = t.reasonViolation(loser);
       break;

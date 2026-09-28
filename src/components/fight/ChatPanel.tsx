@@ -19,11 +19,13 @@ interface ChatPanelProps {
   messages: ChatMessageView[];
   /** False once the match is over; the chat is deleted then. */
   open: boolean;
+  /** Spectators may be muted by the players; they still read everything. */
+  muted: boolean;
   onMessage: (message: ChatMessageView) => void;
   onBlocked: (nickname: string) => void;
 }
 
-export function ChatPanel({ code, messages, open, onMessage, onBlocked }: ChatPanelProps) {
+export function ChatPanel({ code, messages, open, muted, onMessage, onBlocked }: ChatPanelProps) {
   const ui = useUi();
   const t = ui.chat;
   const localeTag = useLocaleTag();
@@ -132,7 +134,9 @@ export function ChatPanel({ code, messages, open, onMessage, onBlocked }: ChatPa
         )}
       </ol>
 
-      {open && (
+      {open && muted && <p className="mt-3 rounded-lg border border-line bg-surface-2/60 px-2.5 py-2 text-[11px] text-muted">{t.mutedSpectator}</p>}
+
+      {open && !muted && (
         <>
           <div className="mt-3 flex gap-1">
             {QUICK_EMOJI.map((emoji) => (

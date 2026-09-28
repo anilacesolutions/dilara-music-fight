@@ -14,6 +14,15 @@ import { authenticate, createUser } from "@/lib/users";
 
 type Validation = Site["validation"];
 
+/** Anything outside letters, digits and the underscore has no place in a nickname. */
+const NOT_IN_NICKNAME = /[^\p{L}\p{N}_]/u;
+
+/** The actual characters that got in the way, so the message can name them. */
+function offenders(value: string): string {
+  const seen = [...value].filter((char) => NOT_IN_NICKNAME.test(char));
+  return [...new Set(seen)].map((char) => (char === " " ? "␣" : char)).join(" ");
+}
+
 /**
  * Built per request rather than at module scope: the wording depends on the
  * reader's language, which Server Actions take from the locale cookie.
@@ -22,7 +31,16 @@ function signupSchema(v: Validation) {
   return z.object({
     firstName: z.string().min(2, { error: v.firstNameMin }).max(40, { error: v.firstNameMax }),
     lastName: z.string().min(2, { error: v.lastNameMin }).max(40, { error: v.lastNameMax }),
-    nickname: z.string().regex(/^[A-Za-z0-9_]{3,20}$/, { error: v.nickname }),
+    nickname: z
+      .string()
+      .min(3, { error: v.nicknameShort })
+      .max(20, { error: v.nicknameLong })
+      // Letters of any alphabet, so "ayıboğan" and "straßenköter" are as welcome as "riffmaster".
+      .superRefine((value, ctx) => {
+        if (NOT_IN_NICKNAME.test(value)) {
+          ctx.addIssue({ code: "custom", message: v.nicknameChars(offenders(value)) });
+        }
+      }),
     email: z.email({ error: v.email }),
     birthDate: z.string().min(1, { error: v.birthDateRequired }),
     password: z

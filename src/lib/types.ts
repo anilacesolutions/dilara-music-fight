@@ -79,10 +79,12 @@ export type RoomStatus = "waiting" | "active" | "finished" | "expired";
 
 /**
  * agreement - both pressed "Maçı Bitir" · surrender - someone gave up ·
- * timeout - the player on turn ran out of time · violation - a player's account was removed ·
- * cancelled - someone walked away before the first song, so nothing is scored.
+ * timeout - the player on turn ran out of time · cards - sent off by an upheld
+ * red card or a second upheld yellow · violation - a player's account was
+ * removed · cancelled - someone walked away before the first song, so nothing
+ * is scored.
  */
-export type EndReason = "agreement" | "surrender" | "timeout" | "violation" | "cancelled";
+export type EndReason = "agreement" | "surrender" | "timeout" | "cards" | "violation" | "cancelled";
 
 /**
  * The toss that decides who opens. The landing is drawn the moment the coin is
@@ -147,6 +149,8 @@ export interface Room {
   setup?: MatchSetup;
   /** Players can close the match to spectators. Open by default. */
   spectatorsAllowed: boolean;
+  /** Whether spectators may write in the chat. Players decide; reading is always allowed. */
+  spectatorChatAllowed: boolean;
   /** When the second player joined and the setup clock started. */
   startedAt: Date | null;
   endReason: EndReason | null;
@@ -185,6 +189,8 @@ export interface PlayerView {
   avatar: string;
   score: number;
   cards: Record<CardColor, number>;
+  /** Upheld cards shown against this player's songs. Two yellows send them off. */
+  booked: Record<CardColor, number>;
   wantsToEnd: boolean;
 }
 
@@ -269,6 +275,8 @@ export interface RoomView {
   /** Both players have the minimum songs and equal counts, so "Maçı Bitir" can work. */
   canAgreeToEnd: boolean;
   spectatorsAllowed: boolean;
+  /** Whether spectators may write in the chat. Players decide; reading is always allowed. */
+  spectatorChatAllowed: boolean;
   spectatorCount: number;
   endReason: EndReason | null;
   forfeitedBy: PlayerSlot | null;

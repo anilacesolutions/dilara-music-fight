@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { signup } from "@/app/actions/auth";
 import { useLocale, useUi } from "@/i18n/client";
 import { Link } from "@/i18n/link";
@@ -18,6 +18,23 @@ export function SignupForm({ maxBirthDate }: { maxBirthDate: string }) {
   const locale = useLocale();
   const t = useUi().signup;
 
+  /**
+   * A rejected field can be far above the button that was just pressed, and on
+   * a phone it is off screen entirely, so the form looks like it did nothing.
+   * Take the reader to the first thing that needs fixing.
+   */
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    const [field] = Object.keys(errors);
+    if (!field) return;
+    const target = formRef.current?.querySelector<HTMLElement>(
+      field === "form" ? "[data-form-error]" : `[name="${field}"], [data-field="${field}"]`,
+    );
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    if (target instanceof HTMLInputElement) target.focus({ preventScroll: true });
+  }, [state, errors]);
+
   function toggleGenre(id: string) {
     setGenres((current) => {
       if (current.includes(id)) return current.filter((genre) => genre !== id);
@@ -26,7 +43,7 @@ export function SignupForm({ maxBirthDate }: { maxBirthDate: string }) {
   }
 
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <form ref={formRef} action={action} className="space-y-4" noValidate>
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField label={t.firstName} name="firstName" autoComplete="given-name" defaultValue={values.firstName} error={errors.firstName} />
         <FormField label={t.lastName} name="lastName" autoComplete="family-name" defaultValue={values.lastName} error={errors.lastName} />
@@ -85,7 +102,7 @@ export function SignupForm({ maxBirthDate }: { maxBirthDate: string }) {
             );
           })}
         </div>
-        <p className={`mt-1.5 text-xs ${errors.genres ? "text-blaze" : "text-muted"}`}>
+        <p data-field="genres" className={`mt-1.5 text-xs ${errors.genres ? "text-blaze" : "text-muted"}`}>
           {errors.genres ?? t.genresHint}
         </p>
       </fieldset>
@@ -129,11 +146,11 @@ export function SignupForm({ maxBirthDate }: { maxBirthDate: string }) {
             {t.kvkkAfter}
           </span>
         </label>
-        {errors.kvkk && <p className="mt-1.5 text-xs text-blaze">{errors.kvkk}</p>}
+        {errors.kvkk && <p data-field="kvkk" className="mt-1.5 text-xs text-blaze">{errors.kvkk}</p>}
       </div>
 
       {errors.form && (
-        <p role="alert" className="rounded-xl border border-blaze/40 bg-blaze/10 px-3 py-2 text-sm text-blaze">
+        <p role="alert" data-form-error className="rounded-xl border border-blaze/40 bg-blaze/10 px-3 py-2 text-sm text-blaze">
           {errors.form}
         </p>
       )}

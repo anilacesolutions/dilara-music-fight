@@ -42,6 +42,14 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
           <footer className="border-t border-line/60 px-4 py-6 text-center text-xs text-muted">
             <span>© {new Date().getFullYear()} Music Fight</span>
             <span className="mx-2">·</span>
+            <Link href={`/${locale}/help`} className="hover:text-foreground">
+              {site.footer.help}
+            </Link>
+            <span className="mx-2">·</span>
+            <Link href={`/${locale}/contact`} className="hover:text-foreground">
+              {site.footer.contact}
+            </Link>
+            <span className="mx-2">·</span>
             <Link href={`/${locale}/kvkk`} className="hover:text-foreground">
               {site.footer.privacy}
             </Link>
