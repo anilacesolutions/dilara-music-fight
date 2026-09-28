@@ -35,6 +35,8 @@ export async function GET() {
     MONGODB_URI: uri ? "set" : "missing",
     MONGODB_DB: process.env.MONGODB_DB ?? "(unset, defaults to music_fight)",
     JUDGE_PROVIDER: process.env.JUDGE_PROVIDER ?? "(unset)",
+    OPENAI_MODEL: process.env.OPENAI_MODEL ?? "(unset, defaults to gpt-5.4-mini)",
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY ? "set" : "missing",
     YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY ? "set" : "missing",
     cluster: clusterName(uri),
   };
