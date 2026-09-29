@@ -15,6 +15,41 @@ function clusterName(uri: string | undefined): string | null {
   return host.split(".")[0] || null;
 }
 
+/**
+ * Whether the configured referee can actually rule. A provider named without
+ * its key answers every song with a 503, and a production deployment left on
+ * the stand-in rules nonsense - both have happened, and both looked healthy.
+ */
+function refereeState(): { ok: boolean; provider: string; error?: string; hint?: string } {
+  const provider = process.env.JUDGE_PROVIDER ?? "mock";
+
+  if (provider === "openai" && !process.env.OPENAI_API_KEY) {
+    return {
+      ok: false,
+      provider,
+      error: "JUDGE_PROVIDER is openai but OPENAI_API_KEY is not set",
+      hint: "Every song submission answers 503. Add the key and rebuild.",
+    };
+  }
+  if (provider === "bedrock" && !process.env.AWS_BEARER_TOKEN_BEDROCK) {
+    return {
+      ok: false,
+      provider,
+      error: "JUDGE_PROVIDER is bedrock but AWS_BEARER_TOKEN_BEDROCK is not set",
+      hint: "Every song submission answers 503. Add the key and rebuild.",
+    };
+  }
+  if (provider === "mock" && process.env.NODE_ENV === "production") {
+    return {
+      ok: false,
+      provider,
+      error: "JUDGE_PROVIDER is mock in production",
+      hint: "Songs are being ruled on by title similarity. Set JUDGE_PROVIDER=openai and OPENAI_API_KEY, then rebuild.",
+    };
+  }
+  return { ok: true, provider };
+}
+
 /** Turns a driver error into the console setting that most likely caused it. */
 function hintFor(message: string): string {
   if (/bad auth|authentication failed/i.test(message)) {
@@ -52,9 +87,7 @@ export async function GET() {
     );
   }
 
-  // A production deployment refereeing with the stand-in looks healthy and
-  // rules nonsense, which is exactly how it went unnoticed once.
-  const standIn = process.env.NODE_ENV === "production" && (process.env.JUDGE_PROVIDER ?? "mock") === "mock";
+  const referee = refereeState();
 
   const startedAt = Date.now();
   try {
@@ -62,21 +95,13 @@ export async function GET() {
     await db.command({ ping: 1 });
     return NextResponse.json(
       {
-        ok: !standIn,
+        ok: referee.ok,
         node: process.version,
         env,
         mongo: { ok: true, ms: Date.now() - startedAt },
-        ...(standIn
-          ? {
-              referee: {
-                ok: false,
-                error: "JUDGE_PROVIDER is mock in production",
-                hint: "Songs are being ruled on by title similarity. Set JUDGE_PROVIDER=openai and OPENAI_API_KEY, then rebuild.",
-              },
-            }
-          : {}),
+        referee,
       },
-      { status: standIn ? 503 : 200 },
+      { status: referee.ok ? 200 : 503 },
     );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
