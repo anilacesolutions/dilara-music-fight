@@ -16,6 +16,7 @@ export const site = {
   },
 
   footer: {
+    cookies: "Çerez tercihleri",
     help: "Yardım",
     contact: "İletişim",
   },

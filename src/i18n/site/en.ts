@@ -10,6 +10,7 @@ export const site: Site = {
   },
 
   footer: {
+    cookies: "Cookie preferences",
     help: "Help",
     contact: "Contact",
   },

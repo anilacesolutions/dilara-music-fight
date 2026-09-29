@@ -26,6 +26,9 @@ http://localhost:3000 → Üye Ol → Giriş Yap → Lobi → **Music Fight Baş
 | `AWS_REGION` / `BEDROCK_MODEL_ID` | Bedrock bölgesi ve modeli — varsayılan `eu-central-1` / `eu.amazon.nova-lite-v1:0` |
 | `AWS_BEARER_TOKEN_BEDROCK` | Bedrock API key; AWS SDK kendisi okur |
 | `YOUTUBE_API_KEY` | **Production için zorunlu.** Olmayınca süre izleme sayfasından kazınır; sunucu IP.lerine YouTube boş sayfa döndürdüğü için canlıda şarkı gönderme çalışmaz |
+| `NEXT_PUBLIC_MIXPANEL_TOKEN` | Mixpanel proje token'ı. Tarayıcıya gittiği için gizli değil. Boşsa ölçüm tamamen kapalı |
+| `NEXT_PUBLIC_MIXPANEL_HOST` | Sadece EU veri bölgesindeki projeler için: `https://api-eu.mixpanel.com` |
+| `NEXT_PUBLIC_SITE_URL` | Link önizlemelerindeki mutlak adres. Boşsa Amplify adresine düşer |
 | `MF_LISTEN_RATIO` | **Sadece geliştirme.** %80 kuralını test için küçültür (ör. `0.02`). Production'da yok sayılır |
 
 ## Diller
@@ -134,6 +137,7 @@ src/
 │  │  ├─ help/                  akordiyon yardım sayfası (14 soru, JS gerektirmeyen <details>)
 │  │  └─ contact/               iletişim formu (mesajlar veritabanında bekler, hiçbir yere iletilmez)
 │  ├─ actions/                  auth.ts, profile.ts, contact.ts
+│  └─ [locale]/opengraph-image  link önizleme kartı, dile göre çizilir
 │  └─ api/                      rooms/…, chat/…, tracks/preview, health
 ├─ components/
 │  ├─ fight/                    CoinToss, GenrePick, MatchSetup, YouTubeStage, CardDecision, SendSong,
@@ -194,6 +198,10 @@ MongoDB koleksiyonları: `users`, `sessions` (TTL), `rooms`, `score_events` (pua
 - **Şarkı süresi**, API key yoksa YouTube sayfasından okunuyor; production'dan önce `YOUTUBE_API_KEY` eklenmeli.
 - **Kötü söz listesi başlangıç seviyesinde**, harf aralarına boşluk koyarak atlatılabilir.
 - **Giriş denemesi sınırı (rate limit) yok.**
+- **Ölçüm onaya bağlı.** Mixpanel yalnızca çerez şeridinde "Kabul et" denince indirilir ve kurulur; hayır diyene tek istek
+  gitmez, hiçbir şey saklanmaz ([src/lib/analytics.ts](src/lib/analytics.ts)). Tercih `mf_consent` çerezinde tutulur,
+  footer'daki "Çerez tercihleri" ile değiştirilebilir ve geri alınca Mixpanel'in localStorage'ı temizlenir.
+  Mixpanel'e giden kimlik sadece hesap id'sidir; nickname ve e-posta gönderilmez.
 - **Gizlilik metni yok.** Aydınlatma metni yer tutucu olduğu için kaldırıldı; analitik ya da çerez eklenmeden önce
   gerçek bir metin yazılmalı.
 - **Gerçek zamanlı değil**, 1,5 saniyelik yoklama kullanılıyor.

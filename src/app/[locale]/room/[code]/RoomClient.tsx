@@ -12,6 +12,20 @@ import { Scoreboard } from "@/components/fight/Scoreboard";
 import { SendSong } from "@/components/fight/SendSong";
 import { SpectatorStage } from "@/components/fight/SpectatorStage";
 import { VarReview } from "@/components/fight/VarReview";
+import { track } from "@/lib/analytics";
+
+/** Written out rather than built at runtime, so every name is greppable. */
+const ROOM_EVENTS: Record<string, string> = {
+  coin: "coin_action_sent",
+  genre: "genre_action_sent",
+  moves: "song_sent",
+  decision: "card_decided",
+  review: "var_action_sent",
+  end: "end_vote_cast",
+  surrender: "match_surrendered",
+  cancel: "match_cancelled",
+  settings: "room_settings_changed",
+};
 import { TurnClock } from "@/components/fight/TurnClock";
 import { WaitingRoom } from "@/components/fight/WaitingRoom";
 import { YouTubeStage } from "@/components/fight/YouTubeStage";
@@ -84,6 +98,14 @@ export default function RoomClient({ initialRoom, initialMessages, initiallyWatc
     roomRef.current = next;
     setRoom(next);
 
+    if (previous.status !== "finished" && next.status === "finished") {
+      track("match_ended", {
+        reason: next.endReason ?? "unknown",
+        songs: next.moves.length,
+        was_player: next.me !== null,
+      });
+    }
+
     const color = burstFor(previous, next);
     if (color) {
       burstCount.current += 1;
@@ -141,6 +163,15 @@ export default function RoomClient({ initialRoom, initialMessages, initiallyWatc
       try {
         const data = await postJson<{ room: RoomView }>(`/api/rooms/${code}/${path}`, body);
         applyRoom(data.room);
+        const event = ROOM_EVENTS[path];
+        if (event) {
+          const details = body as { action?: string; card?: string | null; side?: string };
+          track(event, {
+            ...(details?.action ? { action: details.action } : {}),
+            ...(details?.side ? { side: details.side } : {}),
+            ...(details?.card ? { card: details.card } : {}),
+          });
+        }
         return true;
       } catch (err) {
         if (err instanceof SessionExpiredError) {

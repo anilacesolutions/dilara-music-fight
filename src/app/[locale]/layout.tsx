@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Unbounded } from "next/font/google";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Analytics } from "@/components/analytics/Analytics";
+import { ConsentBanner, ConsentLink } from "@/components/analytics/ConsentBanner";
 import { SiteHeader } from "@/components/SiteHeader";
 import { DEFAULT_LOCALE, LOCALES, LOCALE_TAGS, isLocale } from "@/i18n/config";
 import { LocaleProvider } from "@/i18n/client";
 import { currentLocale, getSite } from "@/i18n/server";
+import { getCurrentUser } from "@/lib/auth";
 import "../globals.css";
 
 // latin-ext carries ğ, ş, ı, İ and the German umlauts.
@@ -48,7 +51,7 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
 export default async function RootLayout({ children, params }: LayoutProps<"/[locale]">) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const site = await getSite();
+  const [site, user] = await Promise.all([getSite(), getCurrentUser()]);
 
   return (
     <html
@@ -69,7 +72,11 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
             <Link href={`/${locale}/contact`} className="hover:text-foreground">
               {site.footer.contact}
             </Link>
+            <span className="mx-2">·</span>
+            <ConsentLink label={site.footer.cookies} />
           </footer>
+          <Analytics userId={user?.id ?? null} locale={locale} />
+          <ConsentBanner />
         </LocaleProvider>
       </body>
     </html>

@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@/lib/analytics";
 import { useRef, useState } from "react";
 import { useUi } from "@/i18n/client";
 import { useLocaleRouter } from "@/i18n/link";
@@ -30,6 +31,7 @@ export function StartFightDialog() {
       const res = await fetch("/api/rooms", { method: "POST" });
       const data = (await res.json()) as { code?: string; error?: string };
       if (!res.ok || !data.code) throw new Error(data.error || t.createFailed);
+      track("match_created");
       router.push(`/room/${data.code}`);
     } catch (err) {
       setError(err instanceof Error && err.message ? err.message : t.createFailed);

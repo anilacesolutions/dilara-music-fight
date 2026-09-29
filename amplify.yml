@@ -12,7 +12,7 @@ frontend:
         # .env.production makes the built app carry them. Only server variables
         # belong here: Next sends nothing to the browser unless the name starts
         # with NEXT_PUBLIC_.
-        - env | grep -E '^(MONGODB_URI|MONGODB_DB|NEXT_PUBLIC_SITE_URL|JUDGE_PROVIDER|OPENAI_API_KEY|OPENAI_MODEL|YOUTUBE_API_KEY|AWS_REGION|BEDROCK_MODEL_ID|AWS_BEARER_TOKEN_BEDROCK)=' >> .env.production || true
+        - env | grep -E '^(MONGODB_URI|MONGODB_DB|NEXT_PUBLIC_SITE_URL|NEXT_PUBLIC_MIXPANEL_TOKEN|NEXT_PUBLIC_MIXPANEL_HOST|JUDGE_PROVIDER|OPENAI_API_KEY|OPENAI_MODEL|YOUTUBE_API_KEY|AWS_REGION|BEDROCK_MODEL_ID|AWS_BEARER_TOKEN_BEDROCK)=' >> .env.production || true
         - npm run build
         # Next reads .env.production from the application root at startup; the
         # standalone bundle, when there is one, needs its own copy.

@@ -213,6 +213,15 @@ export const ui = {
     noReason: "Karar kabul edildi.",
   },
 
+  consent: {
+    title: "Ölçüm çerezlerine izin veriyor musun?",
+    body: "Sitenin nasıl kullanıldığını anlamak için Mixpanel ile hangi sayfaların açıldığını ve maç adımlarının nasıl ilerlediğini ölçmek istiyoruz. Adın, e-postan ve nickname'in gönderilmez. İstemiyorum dersen ölçüm aracı hiç yüklenmez; oyun her iki durumda da aynı çalışır.",
+    accept: "Kabul et",
+    decline: "İstemiyorum",
+    currentlyGranted: "Şu anki tercihin: izin verildi.",
+    currentlyDenied: "Şu anki tercihin: izin verilmedi.",
+  },
+
   chat: {
     title: "Sohbet",
     who: "oyuncular + izleyiciler",

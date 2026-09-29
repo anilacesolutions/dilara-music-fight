@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { SignupTracker } from "@/components/analytics/SignupTracker";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { currentLocale, getSite } from "@/i18n/server";
 import { getCurrentUser, safeReturnPath } from "@/lib/auth";
@@ -27,6 +28,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/[locale]/l
         {welcome ? (
           <div className="mb-6 rounded-xl border border-mint/40 bg-mint/10 px-4 py-3 text-sm text-mint">
             {t.created}
+            <SignupTracker />
           </div>
         ) : next ? (
           <div className="mb-6 rounded-xl border border-line bg-surface-2/60 px-4 py-3 text-sm text-ink-200">

@@ -1,5 +1,6 @@
 "use client";
 
+import { track } from "@/lib/analytics";
 import { useState } from "react";
 import { useUi } from "@/i18n/client";
 import { useLocaleRouter } from "@/i18n/link";
@@ -15,7 +16,10 @@ export function JoinByCode() {
     <form
       onSubmit={(event) => {
         event.preventDefault();
-        if (code.length === CODE_LENGTH) router.push(`/room/${code}`);
+        if (code.length === CODE_LENGTH) {
+          track("match_join_opened");
+          router.push(`/room/${code}`);
+        }
       }}
       className="panel flex flex-col gap-3 p-5 sm:flex-row sm:items-end"
     >

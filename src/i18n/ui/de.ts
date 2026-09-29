@@ -212,6 +212,15 @@ export const ui: Ui = {
     noReason: "Die Entscheidung wurde angenommen.",
   },
 
+  consent: {
+    title: "Analyse-Cookies erlauben?",
+    body: "Um zu verstehen, wie die Seite genutzt wird, möchten wir mit Mixpanel messen, welche Seiten geöffnet werden und wie Matches verlaufen. Name, E-Mail und Nickname werden nie gesendet. Sagst du Nein, wird das Werkzeug gar nicht geladen; das Spiel funktioniert so oder so gleich.",
+    accept: "Akzeptieren",
+    decline: "Nein danke",
+    currentlyGranted: "Deine aktuelle Wahl: erlaubt.",
+    currentlyDenied: "Deine aktuelle Wahl: nicht erlaubt.",
+  },
+
   chat: {
     title: "Chat",
     who: "Spieler + Zuschauer",
