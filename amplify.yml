@@ -21,7 +21,7 @@ frontend:
         # Names only, never values. Without this the log cannot tell a variable
         # that was never entered from one entered after the last build, and that
         # guess has already cost a round of deploys.
-        - for name in MONGODB_URI MONGODB_DB NEXT_PUBLIC_SITE_URL NEXT_PUBLIC_MIXPANEL_TOKEN NEXT_PUBLIC_MIXPANEL_HOST JUDGE_PROVIDER OPENAI_API_KEY OPENAI_MODEL YOUTUBE_API_KEY; do if printenv "$name" > /dev/null; then echo "env check: $name set"; else echo "env check: $name MISSING"; fi; done
+        - 'for name in MONGODB_URI MONGODB_DB NEXT_PUBLIC_SITE_URL NEXT_PUBLIC_MIXPANEL_TOKEN NEXT_PUBLIC_MIXPANEL_HOST JUDGE_PROVIDER OPENAI_API_KEY OPENAI_MODEL YOUTUBE_API_KEY; do if [ -n "$(printenv "$name" || true)" ]; then echo "env check: $name set"; else echo "env check: $name MISSING"; fi; done'
         - npm run build
         # Next reads .env.production from the application root at startup; the
         # standalone bundle, when there is one, needs its own copy.
