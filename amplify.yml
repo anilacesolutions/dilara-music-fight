@@ -13,6 +13,11 @@ frontend:
         # belong here: Next sends nothing to the browser unless the name starts
         # with NEXT_PUBLIC_.
         - env | grep -E '^(MONGODB_URI|MONGODB_DB|NEXT_PUBLIC_SITE_URL|NEXT_PUBLIC_MIXPANEL_TOKEN|NEXT_PUBLIC_MIXPANEL_HOST|JUDGE_PROVIDER|OPENAI_API_KEY|OPENAI_MODEL|YOUTUBE_API_KEY|AWS_REGION|BEDROCK_MODEL_ID|AWS_BEARER_TOKEN_BEDROCK)=' >> .env.production || true
+        # Stamp the build with the commit and time it came from, so /api/health
+        # can say which build is answering. Guessing whether a rebuild actually
+        # happened has cost more time than any bug here.
+        - echo "NEXT_PUBLIC_BUILD_SHA=${AWS_COMMIT_ID:-unknown}" >> .env.production
+        - echo "NEXT_PUBLIC_BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> .env.production
         # Names only, never values. Without this the log cannot tell a variable
         # that was never entered from one entered after the last build, and that
         # guess has already cost a round of deploys.

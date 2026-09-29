@@ -76,10 +76,18 @@ export async function GET() {
     cluster: clusterName(uri),
   };
 
+  // Stamped in by amplify.yml. Without it there is no way to tell from outside
+  // whether a rebuild carried a newly entered variable or the old build is still up.
+  const build = {
+    commit: process.env.NEXT_PUBLIC_BUILD_SHA?.slice(0, 7) ?? "(unstamped)",
+    builtAt: process.env.NEXT_PUBLIC_BUILD_TIME ?? "(unstamped)",
+  };
+
   if (!uri) {
     return NextResponse.json(
       {
         ok: false,
+        build,
         env,
         mongo: { ok: false, error: "MONGODB_URI is not set", hint: "Add it to this environment's variables and redeploy." },
       },
@@ -97,6 +105,7 @@ export async function GET() {
       {
         ok: referee.ok,
         node: process.version,
+        build,
         env,
         mongo: { ok: true, ms: Date.now() - startedAt },
         referee,
@@ -109,6 +118,7 @@ export async function GET() {
       {
         ok: false,
         node: process.version,
+        build,
         env,
         mongo: {
           ok: false,
