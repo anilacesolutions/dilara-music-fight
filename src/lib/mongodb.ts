@@ -20,7 +20,8 @@ export interface UserDoc {
   /** Upheld chat violations. The third one restricts the account. */
   warnings?: number;
   restrictedAt?: Date | null;
-  kvkkAcceptedAt: Date;
+  /** Only on accounts made while the old notice existed. */
+  kvkkAcceptedAt?: Date;
   createdAt: Date;
 }
 

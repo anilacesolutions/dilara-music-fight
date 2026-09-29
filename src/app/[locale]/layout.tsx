@@ -69,10 +69,6 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[lo
             <Link href={`/${locale}/contact`} className="hover:text-foreground">
               {site.footer.contact}
             </Link>
-            <span className="mx-2">·</span>
-            <Link href={`/${locale}/kvkk`} className="hover:text-foreground">
-              {site.footer.privacy}
-            </Link>
           </footer>
         </LocaleProvider>
       </body>

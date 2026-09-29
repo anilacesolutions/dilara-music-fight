@@ -44,7 +44,6 @@ export async function createUser(input: NewUser): Promise<CreateUserResult> {
       avatar: DEFAULT_AVATAR,
       genres: input.genres,
       totalPoints: 0,
-      kvkkAcceptedAt: now,
       createdAt: now,
     });
     return { ok: true };

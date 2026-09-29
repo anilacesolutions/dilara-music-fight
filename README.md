@@ -132,8 +132,7 @@ src/
 │  │  ├─ room/[code]/           maç ekranı (RoomClient 1,5 sn'de bir oyun + sohbet yoklar)
 │  │  ├─ profile/[nickname]/    herkese açık profil + sahibine düzenleme ve engellenenler
 │  │  ├─ help/                  akordiyon yardım sayfası (14 soru, JS gerektirmeyen <details>)
-│  │  ├─ contact/               iletişim formu (mesajlar veritabanında bekler, hiçbir yere iletilmez)
-│  │  └─ kvkk/                  aydınlatma metni (TASLAK)
+│  │  └─ contact/               iletişim formu (mesajlar veritabanında bekler, hiçbir yere iletilmez)
 │  ├─ actions/                  auth.ts, profile.ts, contact.ts
 │  └─ api/                      rooms/…, chat/…, tracks/preview, health
 ├─ components/
@@ -195,5 +194,6 @@ MongoDB koleksiyonları: `users`, `sessions` (TTL), `rooms`, `score_events` (pua
 - **Şarkı süresi**, API key yoksa YouTube sayfasından okunuyor; production'dan önce `YOUTUBE_API_KEY` eklenmeli.
 - **Kötü söz listesi başlangıç seviyesinde**, harf aralarına boşluk koyarak atlatılabilir.
 - **Giriş denemesi sınırı (rate limit) yok.**
-- **KVKK metni yer tutucu**, hukukçu tarafından yazılmalı.
+- **Gizlilik metni yok.** Aydınlatma metni yer tutucu olduğu için kaldırıldı; analitik ya da çerez eklenmeden önce
+  gerçek bir metin yazılmalı.
 - **Gerçek zamanlı değil**, 1,5 saniyelik yoklama kullanılıyor.

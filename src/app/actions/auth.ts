@@ -50,7 +50,6 @@ function signupSchema(v: Validation) {
       .regex(/\p{L}/u, { error: v.passwordLetter })
       .regex(/\d/, { error: v.passwordDigit }),
     passwordConfirm: z.string(),
-    kvkk: z.literal("on", { error: v.kvkk }),
   });
 }
 
@@ -94,7 +93,6 @@ export async function signup(_previous: SignupState, formData: FormData): Promis
     // Passwords are taken exactly as typed.
     password: String(formData.get("password") ?? ""),
     passwordConfirm: String(formData.get("passwordConfirm") ?? ""),
-    kvkk: text(formData, "kvkk"),
   };
   const genres = [...new Set(formData.getAll("genres").filter((value): value is string => typeof value === "string"))];
   const values = {

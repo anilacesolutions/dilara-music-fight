@@ -5,7 +5,6 @@ export const site: Site = {
     signup: "Registrieren",
     login: "Anmelden",
     lobby: "Lobby",
-    kvkk: "Datenschutzerklärung",
     coinPreview: "Münzwurf-Vorschau",
     tagline: "Kämpf mit deinen Songs. Abwechselnd spielen — wer das Format verfehlt, verliert Punkte.",
   },
@@ -13,7 +12,6 @@ export const site: Site = {
   footer: {
     help: "Hilfe",
     contact: "Kontakt",
-    privacy: "Datenschutzerklärung",
   },
 
   notFound: {
@@ -301,7 +299,6 @@ export const site: Site = {
     passwordLetter: "Das Passwort braucht mindestens einen Buchstaben.",
     passwordDigit: "Das Passwort braucht mindestens eine Ziffer.",
     passwordMismatch: "Die Passwörter stimmen nicht überein.",
-    kvkk: "Zum Fortfahren musst du die Datenschutzerklärung akzeptieren.",
     genreNotInList: "Es wurde ein Genre außerhalb der Liste gewählt.",
     genresMin: (min: number) => `Wähle mindestens ${min} Genres.`,
     genresMax: (max: number) => `Du kannst höchstens ${max} Genres wählen.`,
@@ -397,29 +394,6 @@ export const site: Site = {
     restrictedTitle: "Dein Konto ist eingeschränkt",
     restrictedBody:
       "Weil du im Chat wiederholt Songs verraten hast, kannst du keine Matches mehr spielen oder ansehen. Konto und Punkte bleiben bestehen. Hältst du das für falsch, schreib uns über das Kontaktformular.",
-  },
-
-  kvkk: {
-    draftLabel: "Entwurf.",
-    draftBody:
-      "Dieser Text ist ein Platzhalter. Vor dem Livegang muss er durch eine echte, von eurer Rechtsberatung erstellte Datenschutzerklärung ersetzt werden.",
-    title: "Datenschutzerklärung",
-    controllerTitle: "Verantwortlicher",
-    controllerBody: "[Firmenname, Anschrift und Kontaktdaten kommen hierhin.]",
-    dataTitle: "Verarbeitete personenbezogene Daten",
-    data: [
-      "Identität: Vorname, Nachname, Geburtsdatum",
-      "Kontakt: E-Mail-Adresse",
-      "Konto: Nickname, ein nicht umkehrbarer Hash des Passworts, Avatar und Genre-Vorlieben",
-      "Spiel: gespielte Matches, gesendete Song-Links, Karten und Punkte",
-      "Chat: Nachrichten während eines Matches (werden danach gelöscht) und eine zur Prüfung aufbewahrte Kopie gemeldeter Nachrichten",
-      "Moderation: Nickname verwarnter oder eingeschränkter Konten und der Grund dafür",
-    ],
-    purposeTitle: "Zwecke der Verarbeitung",
-    purposeBody:
-      "Konto anlegen, Altersgrenze prüfen, anmelden, Matches durchführen sowie Punkte und Bestenlisten berechnen. Vorname, Nachname, E-Mail und Geburtsdatum werden anderen Nutzern nie gezeigt.",
-    rightsTitle: "Deine Rechte",
-    rightsBody: "Um deine Rechte an deinen personenbezogenen Daten auszuüben, erreichst du uns über [Kontaktweg].",
   },
 
   devCoin: {

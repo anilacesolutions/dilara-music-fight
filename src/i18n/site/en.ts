@@ -5,7 +5,6 @@ export const site: Site = {
     signup: "Sign Up",
     login: "Sign In",
     lobby: "Lobby",
-    kvkk: "Privacy Notice",
     coinPreview: "Coin preview",
     tagline: "Fight with your songs. Take turns, and whoever misses the format loses points.",
   },
@@ -13,7 +12,6 @@ export const site: Site = {
   footer: {
     help: "Help",
     contact: "Contact",
-    privacy: "Privacy Notice",
   },
 
   notFound: {
@@ -301,7 +299,6 @@ export const site: Site = {
     passwordLetter: "The password needs at least one letter.",
     passwordDigit: "The password needs at least one digit.",
     passwordMismatch: "The passwords don't match.",
-    kvkk: "You need to accept the privacy notice to continue.",
     genreNotInList: "A genre outside the list was selected.",
     genresMin: (min: number) => `Pick at least ${min} genres.`,
     genresMax: (max: number) => `You can pick at most ${max} genres.`,
@@ -397,29 +394,6 @@ export const site: Site = {
     restrictedTitle: "Your account is restricted",
     restrictedBody:
       "After repeatedly giving away songs in the chat you can no longer join or watch matches. Your account and points remain. If you think this is wrong, write to us through the contact form.",
-  },
-
-  kvkk: {
-    draftLabel: "Draft.",
-    draftBody:
-      "This text is a placeholder. Before going live it must be replaced with a real privacy notice prepared by your legal counsel.",
-    title: "Privacy Notice",
-    controllerTitle: "Data controller",
-    controllerBody: "[Company name, address and contact details go here.]",
-    dataTitle: "Personal data processed",
-    data: [
-      "Identity: first name, last name, date of birth",
-      "Contact: email address",
-      "Account: nickname, an irreversible hash of the password, avatar and genre preferences",
-      "Game: matches played, song links sent, cards and points",
-      "Chat: messages during a match (deleted when it ends) and a copy of reported messages kept for review",
-      "Moderation: the nickname of warned or restricted accounts and the reason for it",
-    ],
-    purposeTitle: "Purposes of processing",
-    purposeBody:
-      "Creating an account, verifying the age limit, signing in, running matches, and calculating points and leaderboards. First name, last name, email and date of birth are never shown to other users.",
-    rightsTitle: "Your rights",
-    rightsBody: "To exercise your rights over your personal data, contact us through [contact channel].",
   },
 
   devCoin: {

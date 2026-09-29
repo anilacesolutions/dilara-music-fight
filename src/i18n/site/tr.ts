@@ -11,7 +11,6 @@ export const site = {
     signup: "Üye Ol",
     login: "Giriş Yap",
     lobby: "Lobi",
-    kvkk: "KVKK Aydınlatma Metni",
     coinPreview: "Coin önizleme",
     tagline: "Şarkınla kapış. Sırayla şarkı at, formatı tutturamayan puan kaybeder.",
   },
@@ -19,7 +18,6 @@ export const site = {
   footer: {
     help: "Yardım",
     contact: "İletişim",
-    privacy: "KVKK Aydınlatma Metni",
   },
 
   notFound: {
@@ -305,7 +303,6 @@ export const site = {
     passwordLetter: "Şifrede en az bir harf olmalı.",
     passwordDigit: "Şifrede en az bir rakam olmalı.",
     passwordMismatch: "Şifreler eşleşmiyor.",
-    kvkk: "Devam etmek için aydınlatma metnini onaylaman gerekiyor.",
     genreNotInList: "Listede olmayan bir tür seçildi.",
     genresMin: (min: number) => `En az ${min} tür seç.`,
     genresMax: (max: number) => `En fazla ${max} tür seçebilirsin.`,
@@ -402,30 +399,6 @@ export const site = {
     restrictedTitle: "Hesabın kısıtlandı",
     restrictedBody:
       "Sohbette tekrar tekrar şarkı ipucu verdiğin için artık maça giremiyor ve maç izleyemiyorsun. Hesabın ve puanların duruyor. İtirazın varsa iletişim formundan yaz.",
-  },
-
-  kvkk: {
-    draftLabel: "Taslak.",
-    draftBody:
-      "Bu metin yer tutucudur. Yayına almadan önce hukuk danışmanınız tarafından hazırlanmış gerçek aydınlatma metniyle değiştirilmelidir.",
-    title: "KVKK Aydınlatma Metni",
-    controllerTitle: "Veri sorumlusu",
-    controllerBody: "[Şirket unvanı, adresi ve iletişim bilgileri buraya gelecek.]",
-    dataTitle: "İşlenen kişisel veriler",
-    data: [
-      "Kimlik: ad, soyad, doğum tarihi",
-      "İletişim: e-posta adresi",
-      "Hesap: nickname, şifrenin geri döndürülemez özeti, avatar ve müzik türü tercihleri",
-      "Oyun: oynanan maçlar, gönderilen şarkı linkleri, kartlar ve puanlar",
-      "Sohbet: maç sırasındaki mesajlar (maç bitince silinir) ve şikayet edilen mesajların inceleme için saklanan kopyası",
-      "Moderasyon: uyarı alan ya da kısıtlanan hesapların nickname'i ve gerekçesi",
-    ],
-    purposeTitle: "İşleme amaçları",
-    purposeBody:
-      "Üyelik oluşturmak, yaş sınırını doğrulamak, oturum açmak, maçları yürütmek, puanları ve liderlik tablolarını hesaplamak. Ad, soyad, e-posta ve doğum tarihi diğer kullanıcılara gösterilmez.",
-    rightsTitle: "Haklarınız",
-    rightsBody:
-      "6698 sayılı Kanun'un 11. maddesi kapsamındaki haklarınızı kullanmak için [başvuru kanalı] üzerinden bize ulaşabilirsiniz.",
   },
 
   devCoin: {

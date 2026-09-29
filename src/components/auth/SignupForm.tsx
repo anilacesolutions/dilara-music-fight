@@ -135,20 +135,6 @@ export function SignupForm({ maxBirthDate }: { maxBirthDate: string }) {
         {t.showPassword}
       </label>
 
-      <div>
-        <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-line bg-surface-2/50 p-3 text-sm text-ink-200">
-          <input type="checkbox" name="kvkk" className="mt-0.5 h-4 w-4 shrink-0 accent-volt-500" />
-          <span>
-            {t.kvkkBefore}
-            <Link href="/kvkk" target="_blank" className="font-semibold text-volt-300 underline">
-              {t.kvkkLink}
-            </Link>
-            {t.kvkkAfter}
-          </span>
-        </label>
-        {errors.kvkk && <p data-field="kvkk" className="mt-1.5 text-xs text-blaze">{errors.kvkk}</p>}
-      </div>
-
       {errors.form && (
         <p role="alert" data-form-error className="rounded-xl border border-blaze/40 bg-blaze/10 px-3 py-2 text-sm text-blaze">
           {errors.form}

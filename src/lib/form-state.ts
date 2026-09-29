@@ -9,7 +9,6 @@ export type SignupField =
   | "password"
   | "passwordConfirm"
   | "genres"
-  | "kvkk"
   | "form";
 
 export interface SignupState {
