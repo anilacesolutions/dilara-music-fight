@@ -54,6 +54,7 @@ function freshRoom(me: PlayerSlot): RoomView {
     canAgreeToEnd: false,
     spectatorsAllowed: true,
     spectatorChatAllowed: true,
+    refereeStandIn: false,
     spectatorCount: 0,
     endReason: null,
     forfeitedBy: null,

@@ -377,6 +377,9 @@ export const ui = {
     expiredTitle: "Bu oda kapandı",
     expiredBody: (minutes: number) => `${minutes} dakika içinde rakip gelmediği için oda kapatıldı.`,
     newMatch: "Yeni Maç Kur",
+    standInTitle: "⚠ Hakem test modunda",
+    standInBody:
+      "Şu an şarkıları gerçek hakem değil, sadece başlıklara bakan bir yedek değerlendiriyor. Kararları ve VAR sonuçları güvenilir değil; puanları ciddiye alma.",
   },
 
   scoreboard: {

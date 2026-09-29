@@ -312,6 +312,8 @@ export interface RoomView {
   spectatorsAllowed: boolean;
   /** Whether spectators may write in the chat. Players decide; reading is always allowed. */
   spectatorChatAllowed: boolean;
+  /** True while the title-similarity stand-in is refereeing, so the room can warn. */
+  refereeStandIn: boolean;
   spectatorCount: number;
   endReason: EndReason | null;
   forfeitedBy: PlayerSlot | null;

@@ -378,6 +378,9 @@ export const ui: Ui = {
     expiredTitle: "Dieser Raum ist geschlossen",
     expiredBody: (minutes: number) => `Innerhalb von ${minutes} Minuten kam kein Gegner, also wurde der Raum geschlossen.`,
     newMatch: "Neuen Raum öffnen",
+    standInTitle: "⚠ Der Schiedsrichter ist im Testmodus",
+    standInBody:
+      "Songs werden gerade von einem Platzhalter bewertet, der nur Titel vergleicht, nicht vom echten Schiedsrichter. Seine Urteile und VAR-Ergebnisse sagen nichts aus; nimm die Punkte nicht ernst.",
   },
 
   scoreboard: {

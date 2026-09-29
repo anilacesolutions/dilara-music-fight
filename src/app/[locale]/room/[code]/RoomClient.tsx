@@ -299,6 +299,14 @@ export default function RoomClient({ initialRoom, initialMessages, initiallyWatc
 
           {room.phase === "waiting" && <WaitingRoom code={code} inviteUrl={inviteUrl} />}
 
+          {/* Rulings from the stand-in look like rulings. Say which one is on duty. */}
+          {room.refereeStandIn && (
+            <div className="rounded-2xl border border-sun/40 bg-sun/10 px-4 py-3 text-sm text-sun" role="status">
+              <p className="font-semibold">{ui.room.standInTitle}</p>
+              <p className="mt-1 text-xs leading-relaxed opacity-90">{ui.room.standInBody}</p>
+            </div>
+          )}
+
           {review && lastMove && (
             <VarReview
               review={review}

@@ -375,6 +375,9 @@ export const ui: Ui = {
     expiredTitle: "This room is closed",
     expiredBody: (minutes: number) => `No opponent turned up within ${minutes} minutes, so the room was closed.`,
     newMatch: "Open a New Room",
+    standInTitle: "⚠ The referee is in test mode",
+    standInBody:
+      "Songs are being ruled on by a stand-in that only compares titles, not the real referee. Its rulings and VAR results mean nothing; don't take the points seriously.",
   },
 
   scoreboard: {

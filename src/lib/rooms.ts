@@ -531,6 +531,7 @@ export function toRoomView(room: Room, viewerId: string, spectatorCount = 0): Ro
     canAgreeToEnd: canAgreeToEnd(room),
     spectatorsAllowed: spectatorsAllowed(room),
     spectatorChatAllowed: spectatorChatAllowed(room),
+    refereeStandIn: getJudge().id === "mock",
     spectatorCount,
     endReason: room.endReason ?? null,
     forfeitedBy: room.forfeitedBy ?? null,

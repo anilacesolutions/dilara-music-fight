@@ -52,16 +52,32 @@ export async function GET() {
     );
   }
 
+  // A production deployment refereeing with the stand-in looks healthy and
+  // rules nonsense, which is exactly how it went unnoticed once.
+  const standIn = process.env.NODE_ENV === "production" && (process.env.JUDGE_PROVIDER ?? "mock") === "mock";
+
   const startedAt = Date.now();
   try {
     const db = await getDb();
     await db.command({ ping: 1 });
-    return NextResponse.json({
-      ok: true,
-      node: process.version,
-      env,
-      mongo: { ok: true, ms: Date.now() - startedAt },
-    });
+    return NextResponse.json(
+      {
+        ok: !standIn,
+        node: process.version,
+        env,
+        mongo: { ok: true, ms: Date.now() - startedAt },
+        ...(standIn
+          ? {
+              referee: {
+                ok: false,
+                error: "JUDGE_PROVIDER is mock in production",
+                hint: "Songs are being ruled on by title similarity. Set JUDGE_PROVIDER=openai and OPENAI_API_KEY, then rebuild.",
+              },
+            }
+          : {}),
+      },
+      { status: standIn ? 503 : 200 },
+    );
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
