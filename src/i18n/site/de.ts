@@ -187,7 +187,7 @@ export const site: Site = {
           { icon: "💬", text: "Während eines Matches schreiben Spieler und Zuschauer im selben Chat, mit Text und Emoji." },
           {
             icon: "⛔",
-            text: "Songtitel, Künstler, Links oder irgendwelche Hinweise im Chat sind verboten. Der Schiedsrichter liest den Chat mit; wer die Regel bricht, verliert sein Konto dauerhaft.",
+            text: "Songtitel, Künstler, Links oder irgendwelche Hinweise im Chat sind verboten. Der Schiedsrichter liest mit: die ersten beiden Verstöße sind Verwarnungen, beim dritten wird das Konto eingeschränkt — keine Matches, kein Zuschauen.",
           },
           { icon: "🧼", text: "Schimpfwörter werden automatisch maskiert. Wer dich stört, lässt sich melden oder blockieren." },
           { icon: "🗑️", text: "Chatnachrichten werden mit dem Ende des Matches gelöscht." },
@@ -236,7 +236,7 @@ export const site: Site = {
       {
         icon: "👀",
         title: "Zuschauen und mitreden",
-        body: "Du hast einen Raumcode? Schau das Match live mit. Hinweise im Chat kosten dich dein Konto.",
+        body: "Du hast einen Raumcode? Schau das Match live mit. Hinweise im Chat kosten eine Verwarnung; nach dreien wird dein Konto eingeschränkt.",
         tone: "from-pulse-500/15",
       },
       {
@@ -347,6 +347,9 @@ export const site: Site = {
     cardsQ: "Wie funktionieren Gelbe und Rote Karten?",
     cardsA: (yellows: number, yellowPenalty: number, redPenalty: number) =>
       `Wenn dir der Song deines Gegners unpassend vorkommt, zeigst du eine Karte: Gelb heißt „passt nicht ganz“, Rot heißt „völlig daneben“. Eine Karte zählt nur, wenn auch der Schiedsrichter den Song unpassend findet; akzeptiert er ihn, war deine Karte umsonst und nichts ändert sich. Eine gültige Gelbe kostet deinen Gegner ${yellowPenalty} Punkte, eine Rote ${redPenalty}. Die Punkte sind nicht der eigentliche Einsatz: Wie im Fußball beendet eine gültige Rote das Match sofort, und wer sie bekommen hat, verliert es. Zwei gültige Gelbe bewirken dasselbe. Jeder Spieler hat pro Match ${yellows} Gelbe und eine Rote.`,
+    varQ: "Was ist der VAR und wie nutze ich ihn?",
+    varA: (seconds: number) =>
+      `Genau wie im Fußball: Der Schiedsrichter auf dem Platz entscheidet schnell, der VAR schaut genauer hin. Hat dein Gegner dir eine Karte gezeigt und der Schiedsrichter ihm recht gegeben, greift die Karte nicht sofort — sie kommt erst zu dir. Du hast ${seconds} Sekunden: Entscheidung annehmen oder zum VAR schicken. Ein zweiter Schiedsrichter sieht sich dann das ganze Match an, die Songs davor und wie nah die Subgenres wirklich beieinander liegen; sein Wort ist endgültig. Wird die Entscheidung gekippt, ist die Karte weg, dein Song gilt als passend, deine Punkte werden korrigiert und die Karte geht an deinen Gegner zurück. Bleibt sie bestehen, zählt die Karte. Eine Prüfung pro Match; läuft die Zeit ab, bleibt die Karte einfach bestehen.`,
     refereeQ: "Was macht der Schiedsrichter?",
     refereeA:
       "Der Schiedsrichter ist eine KI. Aus Titel und Kanal erschließt er Künstler, Stück und Genre und vergleicht das dann mit dem vorherigen Song oder, beim Eröffnungszug, mit dem vereinbarten Genre. Er schreibt sein Urteil und die Begründung dazu. Die Begründung entsteht gleich in allen drei Sprachen, denn dasselbe Urteil lesen beide Spieler und alle Zuschauer. Das Urteil bleibt versiegelt, bis du deine Kartenentscheidung getroffen hast — niemand kann vorher nachsehen und sich danach richten.",
@@ -358,7 +361,7 @@ export const site: Site = {
       `Meistens im Einvernehmen: Sobald beide mindestens ${minSongs} Songs geschickt haben und der Stand gleich ist, drücken beide auf „Match beenden“, und die höhere Punktzahl gewinnt. Ein Match kann auch durch Karten enden, kampflos, wenn du deine ${turnMinutes} Minuten verstreichen lässt, oder wenn du auf „Aufgeben“ drückst. Überlegst du es dir, bevor der erste Song läuft, steigst du ohne Verlust aus: Ein Druck schließt den Raum, und niemandem wird etwas angerechnet.`,
     chatQ: "Was ist im Chat verboten?",
     chatA:
-      "Einen Songtipp zu geben ist streng verboten: Titel, Künstler, Album, Textzeile oder jeder andere Hinweis, der auf ein Stück zeigt. Ein Schiedsrichter liest den Chat daraufhin mit, und wer die Regel bricht, verliert sein Konto endgültig. Über bereits gespielte Songs zu reden, anzufeuern und zu scherzen ist erlaubt, ebenso Genre-Wünsche ohne konkretes Stück. Links sind gesperrt, Schimpfwörter werden maskiert, und wer dich stört, lässt sich melden oder blockieren. Der Chat wird gelöscht, wenn das Match endet.",
+      "Einen Songtipp zu geben ist streng verboten: Titel, Künstler, Album, Textzeile oder jeder andere Hinweis, der auf ein Stück zeigt. Ein Schiedsrichter liest den Chat daraufhin mit: Die ersten beiden Verstöße sind Verwarnungen, beim dritten wird das Konto eingeschränkt — keine Matches, kein Zuschauen. Gelöscht wird nichts; Konto und Punkte bleiben. Über bereits gespielte Songs zu reden, anzufeuern und zu scherzen ist erlaubt, ebenso Genre-Wünsche ohne konkretes Stück. Links sind gesperrt, Schimpfwörter werden maskiert, und wer dich stört, lässt sich melden oder blockieren. Der Chat wird gelöscht, wenn das Match endet.",
     spectatorQ: "Kann ich Matches anderer ansehen?",
     spectatorA:
       "Ja — wer den Raumcode hat, kann zusehen. Zuschauer sehen den Münzwurf, die Genre-Wahl und jeden Song, können aber nichts drücken. Die Spieler können das Match ganz für Zuschauer schließen oder es offen lassen und nur den Zuschauer-Chat abschalten. Zuschauer bekommen keine Punkte.",
@@ -387,6 +390,15 @@ export const site: Site = {
     failed: "Die Nachricht konnte nicht gesendet werden. Versuchst du es gleich noch einmal?",
   },
 
+  accountNotice: {
+    warningTitle: (count: number, limit: number) => `Verwarnung ${count} auf deinem Konto (bei ${limit} folgt die Sperre)`,
+    warningBody: (limit: number) =>
+      `Einen Songtitel, einen Künstler oder einen Hinweis im Chat zu nennen ist verboten. Beim ${limit}. Verstoß wird dein Konto eingeschränkt: keine Matches, kein Zuschauen. Deine Punkte und deine Historie bleiben.`,
+    restrictedTitle: "Dein Konto ist eingeschränkt",
+    restrictedBody:
+      "Weil du im Chat wiederholt Songs verraten hast, kannst du keine Matches mehr spielen oder ansehen. Konto und Punkte bleiben bestehen. Hältst du das für falsch, schreib uns über das Kontaktformular.",
+  },
+
   kvkk: {
     draftLabel: "Entwurf.",
     draftBody:
@@ -401,7 +413,7 @@ export const site: Site = {
       "Konto: Nickname, ein nicht umkehrbarer Hash des Passworts, Avatar und Genre-Vorlieben",
       "Spiel: gespielte Matches, gesendete Song-Links, Karten und Punkte",
       "Chat: Nachrichten während eines Matches (werden danach gelöscht) und eine zur Prüfung aufbewahrte Kopie gemeldeter Nachrichten",
-      "Moderation: Nickname wegen Regelverstoßes gelöschter Konten und der Grund der Löschung",
+      "Moderation: Nickname verwarnter oder eingeschränkter Konten und der Grund dafür",
     ],
     purposeTitle: "Zwecke der Verarbeitung",
     purposeBody:

@@ -11,6 +11,7 @@ import { ResultPanel } from "@/components/fight/ResultPanel";
 import { Scoreboard } from "@/components/fight/Scoreboard";
 import { SendSong } from "@/components/fight/SendSong";
 import { SpectatorStage } from "@/components/fight/SpectatorStage";
+import { VarReview } from "@/components/fight/VarReview";
 import { TurnClock } from "@/components/fight/TurnClock";
 import { WaitingRoom } from "@/components/fight/WaitingRoom";
 import { YouTubeStage } from "@/components/fight/YouTubeStage";
@@ -172,6 +173,9 @@ export default function RoomClient({ initialRoom, initialMessages, initiallyWatc
   const lastMove = room.moves.at(-1) ?? null;
   const pending = lastMove && !lastMove.revealed ? lastMove : null;
   const isSpectator = room.me === null && (watching || room.phase === "spectate");
+  // The check rides on the last song and disappears once the next one is sent.
+  const review = lastMove?.review ?? null;
+  const reviewOwner = review ? room.players.find((player) => player.slot === review.slot) : null;
   const onTurn = room.players.find((player) => player.slot === room.turn);
   const showChat = live && (me !== null || isSpectator);
 
@@ -263,6 +267,19 @@ export default function RoomClient({ initialRoom, initialMessages, initiallyWatc
           )}
 
           {room.phase === "waiting" && <WaitingRoom code={code} inviteUrl={inviteUrl} />}
+
+          {review && lastMove && (
+            <VarReview
+              review={review}
+              card={lastMove.card}
+              ownerName={reviewOwner?.nickname ?? ""}
+              mine={review.slot === room.me}
+              reviewsLeft={reviewOwner?.reviews ?? 0}
+              busy={busy}
+              onRequest={() => void act("review", { action: "request" })}
+              onAccept={() => void act("review", { action: "accept" })}
+            />
+          )}
 
           {room.phase === "listen" && pending && (
             <>

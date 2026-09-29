@@ -28,7 +28,12 @@ export interface JudgeResult {
 }
 
 export interface Judge {
-  /** Stable identifier stored on each verdict, e.g. "mock" or "vertex". */
+  /** Stable identifier stored on each verdict, e.g. "mock" or "openai". */
   readonly id: string;
   judge(input: JudgeInput): Promise<JudgeResult>;
+  /**
+   * The video check on a card that stood: the same question asked again, with
+   * more evidence and more care. Its answer is final.
+   */
+  review(input: JudgeInput): Promise<JudgeResult>;
 }

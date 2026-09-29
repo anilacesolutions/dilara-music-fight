@@ -13,8 +13,8 @@ import type { CoinSide, PlayerSlot, RoomView } from "@/lib/types";
  */
 
 const PLAYERS = [
-  { slot: "a" as PlayerSlot, nickname: "riffmaster", avatar: "guitar", score: 0, cards: { yellow: 2, red: 1 }, booked: { yellow: 0, red: 0 }, wantsToEnd: false },
-  { slot: "b" as PlayerSlot, nickname: "doomqueen", avatar: "skull", score: 0, cards: { yellow: 2, red: 1 }, booked: { yellow: 0, red: 0 }, wantsToEnd: false },
+  { slot: "a" as PlayerSlot, nickname: "riffmaster", avatar: "guitar", score: 0, cards: { yellow: 2, red: 1 }, booked: { yellow: 0, red: 0 }, reviews: 1, wantsToEnd: false },
+  { slot: "b" as PlayerSlot, nickname: "doomqueen", avatar: "skull", score: 0, cards: { yellow: 2, red: 1 }, booked: { yellow: 0, red: 0 }, reviews: 1, wantsToEnd: false },
 ];
 
 const OPTIONS = ["prog-metal", "rock", "jazz", "funk", "synthwave"];

@@ -1,7 +1,13 @@
 import "server-only";
 import { GameError } from "../errors";
 import type { ChatReferee, ChatReview, ChatReviewInput } from "./chat";
-import { JUDGE_RESULT_SCHEMA, JUDGE_SYSTEM_PROMPT, buildJudgePrompt } from "./prompt";
+import {
+  JUDGE_RESULT_SCHEMA,
+  JUDGE_REVIEW_SYSTEM_PROMPT,
+  JUDGE_SYSTEM_PROMPT,
+  buildJudgePrompt,
+  buildReviewPrompt,
+} from "./prompt";
 import {
   CHAT_REVIEW_SCHEMA,
   CHAT_SYSTEM_PROMPT,
@@ -33,6 +39,8 @@ const REQUEST_TIMEOUT_MS = 20_000;
 
 /** Reasoning models spend tokens before they answer, so leave room for both. */
 const RULING_TOKENS = 3_000;
+/** The check is meant to be slower and more careful, so it gets more room. */
+const REVIEW_TOKENS_THOROUGH = 6_000;
 const REVIEW_TOKENS = 2_000;
 
 interface Completion {
@@ -87,15 +95,19 @@ async function complete(
 export class OpenAIJudge implements Judge {
   readonly id = "openai";
 
+  /** The video check: a slower look with the whole match in front of it. */
+  async review(input: JudgeInput): Promise<JudgeResult> {
+    return this.rule(JUDGE_REVIEW_SYSTEM_PROMPT, buildReviewPrompt(input), input, REVIEW_TOKENS_THOROUGH);
+  }
+
   async judge(input: JudgeInput): Promise<JudgeResult> {
+    return this.rule(JUDGE_SYSTEM_PROMPT, buildJudgePrompt(input), input, RULING_TOKENS);
+  }
+
+  private async rule(system: string, prompt: string, input: JudgeInput, tokens: number): Promise<JudgeResult> {
     let reply: string;
     try {
-      reply = await complete(
-        JUDGE_SYSTEM_PROMPT,
-        buildJudgePrompt(input),
-        { name: "ruling", shape: JUDGE_RESULT_SCHEMA },
-        RULING_TOKENS,
-      );
+      reply = await complete(system, prompt, { name: "ruling", shape: JUDGE_RESULT_SCHEMA }, tokens);
     } catch (error) {
       console.error("[referee] OpenAI call failed", error);
       throw new GameError("refereeUnavailable", 503);

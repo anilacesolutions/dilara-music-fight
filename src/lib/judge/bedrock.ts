@@ -2,7 +2,12 @@ import "server-only";
 import { BedrockRuntimeClient, ConverseCommand } from "@aws-sdk/client-bedrock-runtime";
 import { GameError } from "../errors";
 import type { ChatReferee, ChatReview, ChatReviewInput } from "./chat";
-import { JUDGE_SYSTEM_PROMPT, buildJudgePrompt } from "./prompt";
+import {
+  JUDGE_REVIEW_SYSTEM_PROMPT,
+  JUDGE_SYSTEM_PROMPT,
+  buildJudgePrompt,
+  buildReviewPrompt,
+} from "./prompt";
 import {
   CHAT_SYSTEM_PROMPT,
   ChatReviewSchema,
@@ -51,10 +56,18 @@ export type { ChatReviewReply } from "./shared";
 export class BedrockJudge implements Judge {
   readonly id = "bedrock";
 
+  async review(input: JudgeInput): Promise<JudgeResult> {
+    return this.rule(JUDGE_REVIEW_SYSTEM_PROMPT, buildReviewPrompt(input), input, 700);
+  }
+
   async judge(input: JudgeInput): Promise<JudgeResult> {
+    return this.rule(JUDGE_SYSTEM_PROMPT, buildJudgePrompt(input), input, 400);
+  }
+
+  private async rule(system: string, prompt: string, input: JudgeInput, tokens: number): Promise<JudgeResult> {
     let reply: string;
     try {
-      reply = await converse(JUDGE_SYSTEM_PROMPT, buildJudgePrompt(input), 400);
+      reply = await converse(system, prompt, tokens);
     } catch (error) {
       console.error("[referee] Bedrock call failed", error);
       throw new GameError("refereeUnavailable", 503);

@@ -10,6 +10,9 @@ export const errors = {
   notAPlayer: "Bu maçın oyuncusu değilsin.",
   spectatorsBlocked: "Oyuncular bu maçı izleyicilere kapattı.",
   spectatorChatBlocked: "Oyuncular izleyici sohbetini kapattı; izleyebilirsin ama yazamazsın.",
+  noReviewOpen: "Şu an VAR kontrolü bekleyen bir karar yok.",
+  noReviewsLeft: "Bu maçtaki VAR hakkını kullandın.",
+  reviewPending: "VAR kontrolü sürüyor, sonucu bekle.",
 
   // Rooms
   noSuchRoom: "Böyle bir oda yok.",
@@ -63,7 +66,10 @@ export const errors = {
   messageTooLong: (p: { max: number }) => `Mesaj en fazla ${p.max} karakter olabilir.`,
   noLinks: "Sohbette link paylaşmak yasak.",
   tooFast: "Biraz yavaş, mesajlar arasında bir saniye bekle.",
-  tipDeleted: "Sohbette şarkı ipucu verdiğin için hesabın kalıcı olarak silindi.",
+  tipWarned: (p: { count: number; limit: number }) =>
+    `Sohbette şarkı ipucu vermek yasak. ${p.count}. uyarını aldın; ${p.limit}. ihlalde hesabın kısıtlanır.`,
+  tipRestricted: "Sohbette şarkı ipucu verdiğin için hesabın kısıtlandı: artık maça giremez ve maç izleyemezsin.",
+  accountRestricted: "Hesabın kısıtlı: maça giremez ve maç izleyemezsin.",
   messageNotFound: "Mesaj bulunamadı, maç bitmiş olabilir.",
   cannotReportSelf: "Kendi mesajını şikayet edemezsin.",
   cannotBlockSelf: "Kendini engelleyemezsin.",

@@ -5,6 +5,9 @@ export const errors: Errors = {
   notAPlayer: "You're not a player in this match.",
   spectatorsBlocked: "The players have closed this match to spectators.",
   spectatorChatBlocked: "The players have switched off spectator chat; you can watch but not write.",
+  noReviewOpen: "There is no decision waiting on a video check right now.",
+  noReviewsLeft: "You have used your video check for this match.",
+  reviewPending: "The video check is still running; wait for the outcome.",
 
   noSuchRoom: "No such room.",
   roomCreateFailed: "The room could not be created, please try again.",
@@ -52,7 +55,10 @@ export const errors: Errors = {
   messageTooLong: (p: { max: number }) => `A message can be at most ${p.max} characters.`,
   noLinks: "Sharing links in the chat is not allowed.",
   tooFast: "Slow down — wait a second between messages.",
-  tipDeleted: "Your account has been permanently deleted for giving away a song in the chat.",
+  tipWarned: (p: { count: number; limit: number }) =>
+    `Giving away a song in the chat is not allowed. That is warning ${p.count}; at ${p.limit} your account is restricted.`,
+  tipRestricted: "Your account has been restricted for giving away a song in the chat: no more matches and no more watching.",
+  accountRestricted: "Your account is restricted: you cannot join or watch matches.",
   messageNotFound: "Message not found — the match may be over.",
   cannotReportSelf: "You can't report your own message.",
   cannotBlockSelf: "You can't block yourself.",

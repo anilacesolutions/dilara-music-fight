@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AccountNotice } from "@/components/AccountNotice";
 import { LeaderboardPanel } from "@/components/LeaderboardPanel";
 import { JoinByCode } from "@/components/lobby/JoinByCode";
 import { StartFightDialog } from "@/components/lobby/StartFightDialog";
@@ -27,6 +28,7 @@ export default async function LobbyPage() {
 
   return (
     <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:py-12">
+      <AccountNotice user={user} />
       <section className="panel relative overflow-hidden p-6 sm:p-10">
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-flare-500/15 via-transparent to-pulse-500/15" />
         <div className="relative flex flex-col items-start gap-8 md:flex-row md:items-center md:justify-between">

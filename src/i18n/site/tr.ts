@@ -190,7 +190,7 @@ export const site = {
           { icon: "💬", text: "Maç sırasında oyuncular ve izleyiciler aynı sohbette yazışır, emoji atar." },
           {
             icon: "⛔",
-            text: "Sohbette şarkı adı, sanatçı, link ya da herhangi bir ipucu vermek yasak. Hakem sohbeti de denetler; kuralı çiğneyenin hesabı kalıcı olarak silinir.",
+            text: "Sohbette şarkı adı, sanatçı, link ya da herhangi bir ipucu vermek yasak. Hakem sohbeti de denetler; ilk iki ihlalde uyarı alırsın, üçüncüde hesabın kısıtlanır: maça giremez, maç izleyemezsin.",
           },
           { icon: "🧼", text: "Kötü sözler otomatik gizlenir. Rahatsız eden birini şikayet edebilir ya da engelleyebilirsin." },
           { icon: "🗑️", text: "Sohbet mesajları maç bitince silinir." },
@@ -239,7 +239,7 @@ export const site = {
       {
         icon: "👀",
         title: "İzleyici ol, sohbete katıl",
-        body: "Bir oda kodun varsa maçı canlı izle. Sohbette ipucu vermek yasak, hesabın silinir.",
+        body: "Bir oda kodun varsa maçı canlı izle. Sohbette ipucu vermek yasak; iki uyarıdan sonra hesabın kısıtlanır.",
         tone: "from-pulse-500/15",
       },
       {
@@ -351,6 +351,9 @@ export const site = {
     cardsQ: "Sarı ve kırmızı kart nasıl kullanılır?",
     cardsA: (yellows: number, yellowPenalty: number, redPenalty: number) =>
       `Rakibinin şarkısı sana formatın dışında geldiyse kart gösterirsin: sarı "tam oturmadı", kırmızı "kesinlikle alakasız" demektir. Kart ancak hakem de şarkıyı uyumsuz bulursa geçerli olur; hakem şarkıyı beğenirse kartın boşa gider ve hiçbir şey değişmez. Geçerli sayılan sarı kart rakibine ${yellowPenalty}, kırmızı kart ${redPenalty} puana mal olur. Asıl mesele puan değil: futboldaki gibi, geçerli bir kırmızı kart maçı orada bitirir ve kartı yiyen oyuncu maçı kaybeder. İki geçerli sarı kart da aynı kapıya çıkar. Her oyuncunun bir maçta ${yellows} sarı ve bir kırmızı kart hakkı vardır.`,
+    varQ: "VAR nedir, nasıl kullanılır?",
+    varA: (seconds: number) =>
+      `Futboldaki gibi: sahadaki hakem hızlı karar verir, VAR daha kapsamlı bakar. Rakibin sana kart gösterdiyse ve sahadaki hakem de ona hak verdiyse, kart hemen işlemez — önce senin önüne çıkar. ${seconds} saniyen var: kararı kabul edebilir ya da VAR'a gidebilirsin. VAR'a gidersen ikinci bir hakem maçın tamamına, önceki şarkılara ve alt tür komşuluklarına bakarak yeniden karar verir ve son söz onundur. Kararı bozarsa kart iptal olur, şarkın uyumlu sayılır, puanın düzeltilir ve kart rakibine geri verilir. Bozmazsa kart geçerli kalır. Maç başına bir VAR hakkın var; süre dolarsa kart kendiliğinden geçerli sayılır.`,
     refereeQ: "Hakem ne yapar?",
     refereeA:
       "Hakem bir yapay zekâ. Şarkının başlığından ve kanalından sanatçıyı, parçayı ve türü çıkarır, sonra onu ya bir önceki şarkıyla ya da açılışta anlaşılan türle karşılaştırır. Kararını ve gerekçesini yazar. Gerekçe üç dilde birden yazılır, çünkü aynı karar iki oyuncu ve bütün izleyiciler tarafından okunur. Hakemin kararı sen kart kararını verene kadar mühürlü kalır; kimse önce bakıp ona göre davranamaz.",
@@ -362,7 +365,7 @@ export const site = {
       `En sık yolu anlaşmadır: iki oyuncu da en az ${minSongs} şarkı attıysa ve şarkı sayıları eşitse ikisi birden "Maçı Bitir" der, puanı yüksek olan kazanır. Bunun dışında maç kartla bitebilir, sıranı ${turnMinutes} dakika içinde oynamazsan hükmen bitebilir, ya da "Pes Et" dersen biter. İlk şarkı atılmadan önce fikrin değişirse maçtan puan kaybetmeden çıkabilirsin; tek tıkla oda kapanır ve kimseye hiçbir şey yazılmaz.`,
     chatQ: "Sohbette neler yasak?",
     chatA:
-      "Atılacak şarkı için ipucu vermek kesinlikle yasak: şarkı adı, sanatçı, albüm, söz ya da parçayı tanıtan herhangi bir işaret. Bunu bir hakem denetler ve kuralı çiğneyenin hesabı kalıcı olarak silinir. Çalınmış şarkılar hakkında konuşmak, tezahürat, şaka serbest; somut bir parça içermeyen tür istekleri de serbest. Link paylaşmak engellidir, küfür maskelenir, rahatsız eden birini bildirebilir ya da engelleyebilirsin. Sohbet maç bitince silinir.",
+      "Atılacak şarkı için ipucu vermek kesinlikle yasak: şarkı adı, sanatçı, albüm, söz ya da parçayı tanıtan herhangi bir işaret. Bunu bir hakem denetler: ilk iki ihlalde uyarı alırsın, üçüncüde hesabın kısıtlanır ve artık maça giremez, maç izleyemezsin. Hesabın ve puanların silinmez. Çalınmış şarkılar hakkında konuşmak, tezahürat, şaka serbest; somut bir parça içermeyen tür istekleri de serbest. Link paylaşmak engellidir, küfür maskelenir, rahatsız eden birini bildirebilir ya da engelleyebilirsin. Sohbet maç bitince silinir.",
     spectatorQ: "Başkalarının maçını izleyebilir miyim?",
     spectatorA:
       "Evet, oda kodu olan herkes izleyebilir. İzleyiciler yazı turayı, tür seçimini ve bütün şarkıları görür ama hiçbir butona basamaz. Oyuncular isterse maçı izleyicilere tamamen kapatabilir; isterlerse izlemeye açık bırakıp yalnızca izleyici sohbetini kapatabilirler. İzleyiciler puan kazanmaz.",
@@ -392,6 +395,15 @@ export const site = {
     failed: "Mesaj gönderilemedi. Biraz sonra tekrar dener misin?",
   },
 
+  accountNotice: {
+    warningTitle: (count: number, limit: number) => `Hesabına ${count}. uyarı işlendi (${limit} uyarıda kısıtlama)`,
+    warningBody: (limit: number) =>
+      `Sohbette şarkı adı, sanatçı ya da ipucu vermek yasak. ${limit}. ihlalde hesabın kısıtlanır: maça giremez, maç izleyemezsin. Puanların ve geçmişin yerinde kalır.`,
+    restrictedTitle: "Hesabın kısıtlandı",
+    restrictedBody:
+      "Sohbette tekrar tekrar şarkı ipucu verdiğin için artık maça giremiyor ve maç izleyemiyorsun. Hesabın ve puanların duruyor. İtirazın varsa iletişim formundan yaz.",
+  },
+
   kvkk: {
     draftLabel: "Taslak.",
     draftBody:
@@ -406,7 +418,7 @@ export const site = {
       "Hesap: nickname, şifrenin geri döndürülemez özeti, avatar ve müzik türü tercihleri",
       "Oyun: oynanan maçlar, gönderilen şarkı linkleri, kartlar ve puanlar",
       "Sohbet: maç sırasındaki mesajlar (maç bitince silinir) ve şikayet edilen mesajların inceleme için saklanan kopyası",
-      "Moderasyon: kural ihlali nedeniyle silinen hesapların nickname'i ve silinme gerekçesi",
+      "Moderasyon: uyarı alan ya da kısıtlanan hesapların nickname'i ve gerekçesi",
     ],
     purposeTitle: "İşleme amaçları",
     purposeBody:

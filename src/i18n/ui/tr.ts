@@ -194,6 +194,28 @@ export const ui = {
       "Hakem de şarkıyı uyumsuz bulursa kart geçerli sayılır: rakibin puan cezası yer ve kart siciline işlenir. Kırmızıysa maç orada biter, rakibin yenik sayılır; ikinci sarıda da aynısı olur. Hakem şarkıyı uyumlu bulursa kartın boşa gider.",
   },
 
+  var: {
+    eyebrow: "VAR incelemesi",
+    yellow: "sarı kart",
+    red: "kırmızı kart",
+    title: (card: string, name: string) => `${name} için ${card} — VAR'a gidilsin mi?`,
+    yoursBody: (left: number): string =>
+      left > 0
+        ? "Karar sende: kabul edersen kart geçerli sayılır, VAR'a gidersen ikinci bir hakem maçın tamamına bakıp son kararı verir. Maçta bir kez kullanabilirsin."
+        : "VAR hakkını bu maçta kullandın, bu kart geçerli sayılacak.",
+    theirsBody: (name: string) => `${name} kararı kabul etmek ya da VAR'a gitmek için düşünüyor.`,
+    countdown: (seconds: number) => `${seconds} saniye içinde karar verilmezse kart geçerli sayılır.`,
+    request: "📺 VAR'a git",
+    accept: "Kararı kabul et",
+    checking: "VAR inceliyor…",
+    upheldTitle: "VAR: karar değişmedi",
+    overturnedTitle: "VAR: karar bozuldu",
+    upheldNote: (card: string) => `${card} geçerli.`,
+    overturnedNote: (card: string) => `${card} iptal edildi, şarkı formata uygun sayıldı.`,
+    noAnswer: "Süre doldu, kimse VAR'a gitmedi.",
+    noReason: "Karar kabul edildi.",
+  },
+
   chat: {
     title: "Sohbet",
     who: "oyuncular + izleyiciler",
@@ -214,7 +236,7 @@ export const ui = {
     reportFailed: "Şikayet gönderilemedi.",
     blockFailed: "Engellenemedi.",
     warning:
-      "Sohbette şarkı adı, sanatçı ya da ipucu vermek yasak. Hakem sohbeti de denetler; kuralı çiğneyenin hesabı kalıcı olarak silinir.",
+      "Sohbette şarkı adı, sanatçı ya da ipucu vermek yasak. Hakem sohbeti de denetler; iki uyarıdan sonra hesabın kısıtlanır.",
   },
 
   controls: {

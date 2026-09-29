@@ -48,6 +48,11 @@ function overlap(a: Set<string>, b: Set<string>): number {
 export class MockJudge implements Judge {
   readonly id = "mock";
 
+  /** No second opinion to give: the stand-in already said all it knows. */
+  async review(input: JudgeInput): Promise<JudgeResult> {
+    return this.judge(input);
+  }
+
   async judge(input: JudgeInput): Promise<JudgeResult> {
     const { artist, song } = splitTitle(input.current.title);
 

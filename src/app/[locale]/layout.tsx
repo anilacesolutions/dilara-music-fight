@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Unbounded } from "next/font/google";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
-import { LOCALES, isLocale } from "@/i18n/config";
+import { DEFAULT_LOCALE, LOCALES, LOCALE_TAGS, isLocale } from "@/i18n/config";
 import { LocaleProvider } from "@/i18n/client";
 import { currentLocale, getSite } from "@/i18n/server";
 import "../globals.css";
@@ -17,11 +17,31 @@ export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+/** Absolute URLs are required in link previews; relative ones are ignored. */
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://main.dov186xw29c2h.amplifyapp.com";
+
+export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Promise<Metadata> {
+  const { locale } = await params;
   const site = await getSite();
+  const title = "Music Fight";
+
   return {
-    title: { default: "Music Fight", template: "%s · Music Fight" },
+    metadataBase: new URL(SITE_URL),
+    title: { default: title, template: "%s · Music Fight" },
     description: site.meta.tagline,
+    alternates: {
+      canonical: `/${locale}`,
+      languages: Object.fromEntries(LOCALES.map((code) => [LOCALE_TAGS[code], `/${code}`])),
+    },
+    openGraph: {
+      type: "website",
+      siteName: title,
+      title,
+      description: site.meta.tagline,
+      url: `/${locale}`,
+      locale: LOCALE_TAGS[isLocale(locale) ? locale : DEFAULT_LOCALE].replace("-", "_"),
+    },
+    twitter: { card: "summary_large_image", title, description: site.meta.tagline },
   };
 }
 

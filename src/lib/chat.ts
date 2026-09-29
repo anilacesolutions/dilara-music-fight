@@ -4,7 +4,7 @@ import type { CurrentUser } from "./auth";
 import { containsLink } from "./chat-rules";
 import { GameError } from "./errors";
 import { getChatReferee } from "./judge/chat";
-import { deleteAccountForViolation } from "./moderation";
+import { warnForViolation } from "./moderation";
 import {
   chatMessagesCollection,
   reportsCollection,
@@ -13,7 +13,7 @@ import {
 } from "./mongodb";
 import { maskProfanity } from "./profanity";
 import { roomForChat } from "./rooms";
-import { CHAT_COOLDOWN_MS, CHAT_MAX_LENGTH } from "./rules";
+import { CHAT_COOLDOWN_MS, CHAT_MAX_LENGTH, WARNINGS_BEFORE_RESTRICTION } from "./rules";
 import type { ChatMessageView, RoomView } from "./types";
 
 /** How much history someone sees when they open a room mid-match. */
@@ -86,11 +86,15 @@ export async function postMessage(code: string, author: CurrentUser, rawText: st
     authorIsPlayer: role !== "spectator",
   });
   if (review.tip) {
-    await deleteAccountForViolation(author.id, {
+    const outcome = await warnForViolation(author.id, {
       roomCode: room.code,
       reason: review.reason ?? "Sohbette şarkı ipucu verdi",
     });
-    throw new GameError("tipDeleted", 403);
+    if (outcome.restricted) throw new GameError("tipRestricted", 403);
+    throw new GameError("tipWarned", 403, {
+      count: outcome.warnings,
+      limit: WARNINGS_BEFORE_RESTRICTION,
+    });
   }
 
   const doc: ChatMessageDoc = {

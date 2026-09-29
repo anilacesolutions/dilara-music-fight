@@ -190,6 +190,28 @@ export const ui: Ui = {
       "If the referee also finds the song off-format, the card stands: your opponent takes the penalty and it goes on their record. A red ends the match there and then and they lose it, and so does their second yellow. If the referee accepts the song, your card is wasted.",
   },
 
+  var: {
+    eyebrow: "Video check",
+    yellow: "yellow card",
+    red: "red card",
+    title: (card: string, name: string) => `A ${card} for ${name} — send it to VAR?`,
+    yoursBody: (left: number) =>
+      left > 0
+        ? "Your call: accept and the card stands, or go to VAR and a second referee looks at the whole match and has the final word. Once per match."
+        : "You have used your video check in this match, so this card will stand.",
+    theirsBody: (name: string) => `${name} is deciding whether to accept the card or send it to VAR.`,
+    countdown: (seconds: number) => `If nobody decides within ${seconds} seconds, the card stands.`,
+    request: "📺 Go to VAR",
+    accept: "Accept the decision",
+    checking: "VAR is looking…",
+    upheldTitle: "VAR: decision stands",
+    overturnedTitle: "VAR: decision overturned",
+    upheldNote: (card: string) => `The ${card} counts.`,
+    overturnedNote: (card: string) => `The ${card} is cancelled; the song was ruled a fit after all.`,
+    noAnswer: "Time ran out and nobody went to VAR.",
+    noReason: "The decision was accepted.",
+  },
+
   chat: {
     title: "Chat",
     who: "players + spectators",
@@ -210,7 +232,7 @@ export const ui: Ui = {
     reportFailed: "The report could not be sent.",
     blockFailed: "They could not be blocked.",
     warning:
-      "Naming a song, an artist or dropping a hint in the chat is forbidden. The referee reads the chat too, and breaking this rule deletes the account permanently.",
+      "Naming a song, an artist or dropping a hint in the chat is forbidden. The referee reads the chat too; after two warnings the account is restricted.",
   },
 
   controls: {

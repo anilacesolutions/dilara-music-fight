@@ -26,11 +26,14 @@ import {
   TURN_GRACE_MS,
   TURN_SECONDS,
   WAITING_ROOM_MINUTES,
+  REVIEWS_PER_PLAYER,
+  REVIEW_SECONDS,
   YELLOWS_BEFORE_SENDING_OFF,
   listenRatio,
 } from "./rules";
 import type {
   CardColor,
+  LocalizedText,
   ChatRole,
   CoinSide,
   EndReason,
@@ -40,6 +43,8 @@ import type {
   Move,
   Phase,
   PlayerSlot,
+  ReviewState,
+  ReviewView,
   Room,
   RoomView,
   SetupView,
@@ -109,6 +114,7 @@ function makePlayer(slot: PlayerSlot, user: CurrentUser): MatchPlayer {
     avatar: user.avatar,
     score: 0,
     cards: { ...CARDS_PER_PLAYER },
+    reviews: REVIEWS_PER_PLAYER,
     wantsToEnd: false,
     joinedAt: new Date(),
   };
@@ -135,6 +141,11 @@ function requireActive(room: Room): void {
 }
 
 /** Rooms written before a setting existed default to open. */
+/** A restricted account plays nothing and watches nothing. */
+function requireUnrestricted(user: CurrentUser): void {
+  if (user.restricted) throw new GameError("accountRestricted", 403);
+}
+
 const spectatorsAllowed = (room: Room) => room.spectatorsAllowed !== false;
 /** Rooms created before players could mute the gallery default to letting it talk. */
 const spectatorChatAllowed = (room: Room) => room.spectatorChatAllowed !== false;
@@ -285,14 +296,35 @@ function turnDeadline(room: Room): number | null {
   const last = room.moves.at(-1);
   // After a song lands the clock starts when its listening window closes;
   // the opener's clock starts when the genre is settled.
+  if (openReview(room)) return null;
   const start = last ? listenWindowEnd(last) : matchStart(room).getTime();
-  return start + TURN_SECONDS * 1000;
+  return start + TURN_SECONDS * 1000 + (last?.reviewPausedMs ?? 0);
 }
 
 function songCounts(room: Room): Record<PlayerSlot, number> {
   const counts = { a: 0, b: 0 };
   for (const move of room.moves) counts[move.slot] += 1;
   return counts;
+}
+
+/** The move whose card is still waiting on a video check, if any. */
+function openReview(room: Room): Move | null {
+  const last = room.moves.at(-1);
+  return last?.review && last.review.outcome === null ? last : null;
+}
+
+const reviewDeadline = (review: ReviewState): number => review.openedAt.getTime() + REVIEW_SECONDS * 1000;
+
+function toReviewView(move: Move): ReviewView | null {
+  const review = move.review;
+  if (!review) return null;
+  return {
+    slot: review.slot,
+    outcome: review.outcome,
+    reason: review.reason,
+    auto: review.auto,
+    deadline: review.outcome === null ? reviewDeadline(review) : null,
+  };
 }
 
 /** A card counts only where the referee agreed with it; the rest book nobody. */
@@ -357,6 +389,11 @@ async function enforceClocks(room: Room): Promise<Room> {
 
   const setupLimit = setupDeadline(room);
   if (setupLimit !== null && now > setupLimit) return settleSetup(room);
+
+  const pending = openReview(room);
+  if (pending?.review && now > reviewDeadline(pending.review)) {
+    return settleReview(room, pending, { outcome: "upheld", reason: null, auto: true });
+  }
 
   const deadline = turnDeadline(room);
   if (deadline !== null && now > deadline + TURN_GRACE_MS) {
@@ -449,6 +486,7 @@ export function toRoomView(room: Room, viewerId: string, spectatorCount = 0): Ro
   else if (!me) phase = room.status === "waiting" ? "join" : "spectate";
   else if (room.status === "waiting") phase = "waiting";
   else if (!setupDone(room)) phase = room.setup?.coin.resolvedAt ? "genre" : "coin";
+  else if (openReview(room)) phase = "review";
   else if (room.turn !== me) phase = "opponent";
   else if (hasPending && pending.slot !== me) phase = "listen";
   else phase = "send";
@@ -458,13 +496,14 @@ export function toRoomView(room: Room, viewerId: string, spectatorCount = 0): Ro
     status: room.status,
     turn: room.turn,
     winner: room.winner,
-    players: room.players.map(({ slot, nickname, avatar, score, cards, wantsToEnd }) => ({
+    players: room.players.map(({ slot, nickname, avatar, score, cards, reviews, wantsToEnd }) => ({
       slot,
       nickname,
       avatar,
       score,
       cards,
       booked: booked[slot],
+      reviews: reviews ?? REVIEWS_PER_PLAYER,
       wantsToEnd,
     })),
     moves: room.moves.map((move) => ({
@@ -478,6 +517,7 @@ export function toRoomView(room: Room, viewerId: string, spectatorCount = 0): Ro
       skipped: move.skipped ?? false,
       songPoints: move.revealed ? move.songPoints : null,
       cardPenalty: move.revealed ? move.cardPenalty : null,
+      review: toReviewView(move),
       createdAt: move.createdAt.toISOString(),
     })),
     me,
@@ -565,6 +605,7 @@ async function recordPoints(events: ScoreEventDoc[], session: ClientSession): Pr
 
 /** Opens a friend fight with `user` as host. Returns the room code. */
 export async function createRoom(user: CurrentUser): Promise<string> {
+  requireUnrestricted(user);
   const rooms = await roomsCollection();
 
   // Codes are short, so a collision is possible - retry a few times.
@@ -615,6 +656,7 @@ export async function getRoomView(
   const spectating = !isPlayer && (room.status === "active" || (room.status === "waiting" && options.watching));
 
   if (spectating) {
+    requireUnrestricted(user);
     if (!spectatorsAllowed(room)) throw new GameError("spectatorsBlocked", 403);
     await touchPresence(room, user);
   }
@@ -625,6 +667,7 @@ export async function getRoomView(
 export async function joinRoom(code: string, user: CurrentUser): Promise<RoomView> {
   const room = await loadCurrentRoom(code);
   if (slotOf(room, user.id)) return viewFor(room, user);
+  requireUnrestricted(user);
   if (room.status === "expired") throw new GameError("roomClosed", 409);
   if (room.status !== "waiting") throw new GameError("roomFull", 409);
 
@@ -807,6 +850,8 @@ export async function submitMove(code: string, user: CurrentUser, url: string): 
   const room = await loadCurrentRoom(code);
   const me = requireSlot(room, user);
   requireActive(room);
+  // Nothing moves while a card is upstairs.
+  if (openReview(room)) throw new GameError("reviewPending", 409);
   if (!setupDone(room)) throw new GameError("setupIncomplete", 409);
   if (room.turn !== me) throw new GameError("notYourTurn", 409);
 
@@ -909,6 +954,8 @@ export async function decide(
   }
 
   const settlement = settle(pending, card);
+  // A card the referee agrees with does not bite yet: it goes upstairs first.
+  const upheldNow = card !== null && pending.verdict.kind === "mismatch";
   const ownerIndex = playerIndex(room, pending.slot);
   const at = `moves.${pending.index}`;
   const cardKey = card ? `players.${myIndex}.cards.${card}` : null;
@@ -935,6 +982,18 @@ export async function decide(
           [`${at}.songPoints`]: settlement.songPoints,
           [`${at}.cardPenalty`]: settlement.cardPenalty,
           [`${at}.revealedAt`]: now,
+          ...(upheldNow
+            ? {
+                [`${at}.review`]: {
+                  slot: pending.slot,
+                  openedAt: now,
+                  outcome: null,
+                  reason: null,
+                  decidedAt: null,
+                  auto: false,
+                },
+              }
+            : {}),
           updatedAt: now,
         },
         $inc: {
@@ -954,13 +1013,146 @@ export async function decide(
     return result;
   });
 
-  // A card the referee upheld can end the match here and now, football style.
-  if (sentOff(bookings(updated)[pending.slot])) {
-    return viewFor(await finishMatch(room.code, { reason: "cards", loser: pending.slot }), user);
-  }
+  // Nothing ends here any more: an upheld card waits for the video check.
   return viewFor(updated, user);
 }
 
+
+// ─── The video check ────────────────────────────────────────────────────────
+
+interface ReviewOutcome {
+  outcome: "upheld" | "overturned";
+  reason: LocalizedText | null;
+  auto: boolean;
+}
+
+/**
+ * Closes an open check and lets the card do what it was going to do.
+ *
+ * Upheld, the card counts and may send its owner off. Overturned, the song is
+ * treated as a fit after all: the mismatch and the card penalty are paid back,
+ * the card returns to the player who showed it, and one compensating row keeps
+ * the ledger honest about why the score moved.
+ */
+async function settleReview(room: Room, move: Move, result: ReviewOutcome): Promise<Room> {
+  const now = new Date();
+  const review = move.review;
+  if (!review || review.outcome !== null) return room;
+
+  const at = `moves.${move.index}`;
+  const pausedMs = now.getTime() - review.openedAt.getTime();
+  const ownerIndex = playerIndex(room, move.slot);
+  const showerIndex = playerIndex(room, otherSlot(move.slot));
+
+  const settled = await withTransaction(async (session) => {
+    const rooms = await roomsCollection();
+    const set: Record<string, unknown> = {
+      [`${at}.review.outcome`]: result.outcome,
+      [`${at}.review.reason`]: result.reason,
+      [`${at}.review.decidedAt`]: now,
+      [`${at}.review.auto`]: result.auto,
+      [`${at}.reviewPausedMs`]: pausedMs,
+      updatedAt: now,
+    };
+    const inc: Record<string, number> = {};
+    const events: ScoreEventDoc[] = [];
+
+    if (result.outcome === "overturned") {
+      const delta = SCORING.match - (move.songPoints + move.cardPenalty);
+      Object.assign(set, {
+        [`${at}.verdict.kind`]: "match",
+        [`${at}.songPoints`]: SCORING.match,
+        [`${at}.cardPenalty`]: 0,
+        [`${at}.card`]: null,
+        ...(result.reason ? { [`${at}.verdict.reason`]: result.reason } : {}),
+      });
+      inc[`players.${ownerIndex}.score`] = delta;
+      // The card was wrong, so it is not spent.
+      if (move.card) inc[`players.${showerIndex}.cards.${move.card}`] = 1;
+      if (delta !== 0) {
+        events.push(scoreEvent(room, move.slot, delta, "review_overturn", move.index, now));
+      }
+    }
+
+    const result_ = await rooms.findOneAndUpdate(
+      { code: room.code, status: "active", [`${at}.review.outcome`]: null },
+      Object.keys(inc).length > 0 ? { $set: set, $inc: inc } : { $set: set },
+      { returnDocument: "after", projection: { _id: 0 }, session },
+    );
+    // Someone else settled it a moment ago; their write stands.
+    if (!result_) return null;
+
+    await recordPoints(events, session);
+    return result_;
+  });
+
+  if (!settled) return loadRoom(room.code);
+
+  if (result.outcome === "upheld" && sentOff(bookings(settled)[move.slot])) {
+    return finishMatch(settled.code, { reason: "cards", loser: move.slot });
+  }
+  return settled;
+}
+
+/** The player the card was shown to accepts it without asking for a check. */
+export async function waiveReview(code: string, user: CurrentUser): Promise<RoomView> {
+  const room = await loadCurrentRoom(code);
+  const me = requireSlot(room, user);
+  requireActive(room);
+
+  const move = openReview(room);
+  if (!move || move.review?.slot !== me) throw new GameError("noReviewOpen", 409);
+  return viewFor(await settleReview(room, move, { outcome: "upheld", reason: null, auto: false }), user);
+}
+
+/**
+ * Sends the card upstairs. The second opinion sees the whole match and is
+ * asked to be slow about it; whatever it says is the end of the matter.
+ */
+export async function requestReview(code: string, user: CurrentUser): Promise<RoomView> {
+  const room = await loadCurrentRoom(code);
+  const me = requireSlot(room, user);
+  requireActive(room);
+
+  const move = openReview(room);
+  if (!move || move.review?.slot !== me) throw new GameError("noReviewOpen", 409);
+
+  const myIndex = playerIndex(room, me);
+  if ((room.players[myIndex].reviews ?? REVIEWS_PER_PLAYER) <= 0) {
+    throw new GameError("noReviewsLeft", 409);
+  }
+
+  // Spend the check first: the model call is slow, and one press must buy one check.
+  const rooms = await roomsCollection();
+  const spent = await rooms.findOneAndUpdate(
+    {
+      code: room.code,
+      status: "active",
+      [`moves.${move.index}.review.outcome`]: null,
+      [`players.${myIndex}.reviews`]: { $gt: 0 },
+    },
+    { $inc: { [`players.${myIndex}.reviews`]: -1 }, $set: { updatedAt: new Date() } },
+    { returnDocument: "after", projection: { _id: 0 } },
+  );
+  if (!spent) throw new GameError("stateChangedRetry", 409);
+
+  const previous = move.index > 0 ? spent.moves[move.index - 1] : null;
+  const ruling = await getJudge().review({
+    previous: previous ? previous.track : null,
+    current: move.track,
+    history: spent.moves.slice(0, move.index).map((m) => m.track),
+    genre: spent.setup?.genre.genre ? genreForJudge(spent.setup.genre.genre) : null,
+  });
+
+  return viewFor(
+    await settleReview(spent, move, {
+      outcome: ruling.matches ? "overturned" : "upheld",
+      reason: ruling.reason,
+      auto: false,
+    }),
+    user,
+  );
+}
 /** Records or withdraws a "Maçı Bitir" vote. Two votes end the match. */
 export async function setEndVote(code: string, user: CurrentUser, wantsToEnd: boolean): Promise<RoomView> {
   const room = await loadCurrentRoom(code);

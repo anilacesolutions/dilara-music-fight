@@ -25,6 +25,20 @@ export const CARDS_PER_PLAYER = { yellow: 2, red: 1 } as const;
  */
 export const YELLOWS_BEFORE_SENDING_OFF = 2;
 
+/**
+ * Chat violations tolerated before an account is closed off. The first two are
+ * warnings; the third restricts the account instead of deleting it.
+ */
+export const WARNINGS_BEFORE_RESTRICTION = 3;
+
+/**
+ * The video check. A card the referee upheld can be sent upstairs once per
+ * player per match; the second opinion is taken on more evidence and its word
+ * is final, so the card only takes effect after the window closes.
+ */
+export const REVIEWS_PER_PLAYER = 1;
+export const REVIEW_SECONDS = 45;
+
 export const MAX_TRACK_SECONDS = 10 * 60;
 
 export const MIN_SIGNUP_AGE = 18;

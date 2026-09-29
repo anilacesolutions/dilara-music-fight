@@ -17,6 +17,9 @@ export interface UserDoc {
   totalPoints: number;
   /** People whose chat messages this user never sees. */
   blockedUserIds?: ObjectId[];
+  /** Upheld chat violations. The third one restricts the account. */
+  warnings?: number;
+  restrictedAt?: Date | null;
   kvkkAcceptedAt: Date;
   createdAt: Date;
 }
@@ -32,6 +35,7 @@ export interface SessionDoc {
 export type ScoreReason =
   | "song_match"
   | "song_mismatch"
+  | "review_overturn"
   | "card_penalty"
   | "skip_penalty"
   | "win_bonus"
@@ -77,7 +81,7 @@ export interface ReportDoc {
 /** What moderation did and why. Outlives the deleted account on purpose. */
 export interface ModerationLogDoc {
   nickname: string;
-  action: "account_deleted";
+  action: "account_deleted" | "warning" | "account_restricted";
   reason: string;
   roomCode: string | null;
   createdAt: Date;

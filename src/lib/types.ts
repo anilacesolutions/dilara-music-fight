@@ -59,6 +59,26 @@ export interface Move {
   cardPenalty: number;
   createdAt: Date;
   revealedAt: Date | null;
+  /** The video check on an upheld card. Null when no card stood on this song. */
+  review?: ReviewState | null;
+  /** How long the clock stood still for that check, handed back to the player on turn. */
+  reviewPausedMs?: number;
+}
+
+/**
+ * A card the referee upheld waits here before it counts. The player it was
+ * shown to may send it upstairs; whatever comes back is final.
+ */
+export interface ReviewState {
+  /** Whose card this is, and so who may ask for the check. */
+  slot: PlayerSlot;
+  openedAt: Date;
+  /** Null while the window is still open. */
+  outcome: "upheld" | "overturned" | null;
+  reason: LocalizedText | null;
+  decidedAt: Date | null;
+  /** True when nobody asked in time and the window simply closed. */
+  auto: boolean;
 }
 
 export interface MatchPlayer {
@@ -70,6 +90,8 @@ export interface MatchPlayer {
   score: number;
   /** Cards this player still has to show. */
   cards: Record<CardColor, number>;
+  /** Video checks left. Absent on matches started before the check existed. */
+  reviews?: number;
   /** Pressed "Maçı Bitir". */
   wantsToEnd: boolean;
   joinedAt: Date;
@@ -179,6 +201,7 @@ export type Phase =
   | "send"
   | "listen"
   | "opponent"
+  | "review"
   | "spectate"
   | "finished"
   | "expired";
@@ -191,6 +214,8 @@ export interface PlayerView {
   cards: Record<CardColor, number>;
   /** Upheld cards shown against this player's songs. Two yellows send them off. */
   booked: Record<CardColor, number>;
+  /** Video checks this player may still call for. */
+  reviews: number;
   wantsToEnd: boolean;
 }
 
@@ -206,7 +231,17 @@ export interface MoveView {
   skipped: boolean;
   songPoints: number | null;
   cardPenalty: number | null;
+  review: ReviewView | null;
   createdAt: string;
+}
+
+export interface ReviewView {
+  slot: PlayerSlot;
+  outcome: "upheld" | "overturned" | null;
+  reason: LocalizedText | null;
+  auto: boolean;
+  /** Epoch ms while the window is open, null once it has been settled. */
+  deadline: number | null;
 }
 
 /**

@@ -193,6 +193,28 @@ export const ui: Ui = {
       "Findet auch der Schiedsrichter den Song unpassend, zählt die Karte: dein Gegner kassiert die Strafe und sie kommt auf sein Konto. Eine Rote beendet das Match sofort und er verliert es, die zweite Gelbe ebenso. Akzeptiert der Schiedsrichter den Song, war deine Karte umsonst.",
   },
 
+  var: {
+    eyebrow: "Videoprüfung",
+    yellow: "Gelbe Karte",
+    red: "Rote Karte",
+    title: (card: string, name: string) => `${card} für ${name} — zum VAR schicken?`,
+    yoursBody: (left: number) =>
+      left > 0
+        ? "Du entscheidest: Annehmen, dann zählt die Karte, oder zum VAR, dann sieht sich ein zweiter Schiedsrichter das ganze Match an und hat das letzte Wort. Einmal pro Match."
+        : "Du hast deine Videoprüfung in diesem Match schon genutzt, die Karte bleibt bestehen.",
+    theirsBody: (name: string) => `${name} überlegt, ob die Karte angenommen oder zum VAR geschickt wird.`,
+    countdown: (seconds: number) => `Entscheidet innerhalb von ${seconds} Sekunden niemand, zählt die Karte.`,
+    request: "📺 Zum VAR",
+    accept: "Entscheidung annehmen",
+    checking: "VAR prüft…",
+    upheldTitle: "VAR: Entscheidung bleibt",
+    overturnedTitle: "VAR: Entscheidung gekippt",
+    upheldNote: (card: string) => `Die ${card} zählt.`,
+    overturnedNote: (card: string) => `Die ${card} ist aufgehoben; der Song gilt doch als passend.`,
+    noAnswer: "Die Zeit lief ab, niemand ging zum VAR.",
+    noReason: "Die Entscheidung wurde angenommen.",
+  },
+
   chat: {
     title: "Chat",
     who: "Spieler + Zuschauer",
@@ -213,7 +235,7 @@ export const ui: Ui = {
     reportFailed: "Die Meldung konnte nicht gesendet werden.",
     blockFailed: "Blockieren hat nicht geklappt.",
     warning:
-      "Songtitel, Künstler oder Hinweise im Chat sind verboten. Der Schiedsrichter liest den Chat mit; wer die Regel bricht, verliert sein Konto dauerhaft.",
+      "Songtitel, Künstler oder Hinweise im Chat sind verboten. Der Schiedsrichter liest mit; nach zwei Verwarnungen wird das Konto eingeschränkt.",
   },
 
   controls: {

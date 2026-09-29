@@ -187,7 +187,7 @@ export const site: Site = {
           { icon: "💬", text: "During a match players and spectators share one chat, text and emoji." },
           {
             icon: "⛔",
-            text: "Naming a song, an artist, posting a link or dropping any hint in the chat is forbidden. The referee reads the chat too, and breaking this rule deletes the account permanently.",
+            text: "Naming a song, an artist, posting a link or dropping any hint in the chat is forbidden. The referee reads the chat too: two warnings, and the third violation restricts the account — no matches and no watching.",
           },
           { icon: "🧼", text: "Bad language is masked automatically. You can report or block anyone bothering you." },
           { icon: "🗑️", text: "Chat messages are deleted when the match ends." },
@@ -236,7 +236,7 @@ export const site: Site = {
       {
         icon: "👀",
         title: "Watch a match, join the chat",
-        body: "Got a room code? Watch the match live. Tipping anyone off in the chat deletes your account.",
+        body: "Got a room code? Watch the match live. Tipping anyone off in the chat costs you a warning, and three of those close your account off.",
         tone: "from-pulse-500/15",
       },
       {
@@ -347,6 +347,9 @@ export const site: Site = {
     cardsQ: "How do yellow and red cards work?",
     cardsA: (yellows: number, yellowPenalty: number, redPenalty: number) =>
       `If your opponent's song strikes you as off-format, you show a card: yellow means "doesn't quite fit", red means "nowhere near". A card only stands if the referee also finds the song off-format; if the referee accepts the song, your card is wasted and nothing changes. A yellow that stands costs your opponent ${yellowPenalty} points, a red ${redPenalty}. The points are not the real stake: as in football, a red card that stands ends the match there and then, and the player who received it loses. Two yellows that stand do the same. Each player gets ${yellows} yellows and one red per match.`,
+    varQ: "What is VAR and how do I use it?",
+    varA: (seconds: number) =>
+      `Exactly as in football: the referee on the pitch decides quickly, VAR looks more closely. If your opponent showed you a card and the referee agreed with it, the card does not bite straight away — it comes to you first. You have ${seconds} seconds: accept the decision, or send it to VAR. A second referee then looks at the whole match, the songs before it and how close the subgenres really are, and its word is final. Overturned, the card is cancelled, your song counts as a fit, your score is corrected and the card goes back to your opponent. Upheld, the card stands. One check per match; if the time runs out, the card simply stands.`,
     refereeQ: "What does the referee do?",
     refereeA:
       "The referee is an AI. It works out the artist, the track and the genre from the title and the channel, then compares that either with the previous song or, on the opening move, with the agreed genre. It writes its ruling and the reasoning behind it. The reasoning is written in all three languages at once, because the same ruling is read by both players and every spectator. The ruling stays sealed until you have made your card decision, so nobody can peek first and play accordingly.",
@@ -358,7 +361,7 @@ export const site: Site = {
       `Usually by agreement: once both players have sent at least ${minSongs} songs and the counts are level, both press "End Match" and the higher score wins. A match can also end on cards, by default if you let your ${turnMinutes}-minute turn run out, or if you press "Give Up". If you change your mind before the first song is played you can walk away at no cost: one press closes the room and nothing is written to anyone's record.`,
     chatQ: "What is not allowed in the chat?",
     chatA:
-      "Giving away a song to play is strictly forbidden: a title, an artist, an album, a lyric or any other clue that points at a track. A referee reads the chat for this, and an account that breaks the rule is deleted permanently. Talking about songs already played, cheering and joking are fine, and so are genre requests that name no particular track. Links are blocked, profanity is masked, and you can report or block anyone who bothers you. The chat is deleted when the match ends.",
+      "Giving away a song to play is strictly forbidden: a title, an artist, an album, a lyric or any other clue that points at a track. A referee reads the chat for this: the first two violations are warnings, and the third restricts the account — no matches and no watching. Nothing is deleted; the account and its points stay. Talking about songs already played, cheering and joking are fine, and so are genre requests that name no particular track. Links are blocked, profanity is masked, and you can report or block anyone who bothers you. The chat is deleted when the match ends.",
     spectatorQ: "Can I watch other people's matches?",
     spectatorA:
       "Yes — anyone with the room code can watch. Spectators see the coin toss, the genre pick and every song, but cannot press anything. Players may close the match to spectators entirely, or leave it open to watch while switching off spectator chat. Spectators earn no points.",
@@ -387,6 +390,15 @@ export const site: Site = {
     failed: "The message could not be sent. Could you try again in a moment?",
   },
 
+  accountNotice: {
+    warningTitle: (count: number, limit: number) => `Warning ${count} on your account (${limit} means a restriction)`,
+    warningBody: (limit: number) =>
+      `Naming a song, an artist or dropping a hint in the chat is not allowed. At violation ${limit} your account is restricted: no matches and no watching. Your points and history stay as they are.`,
+    restrictedTitle: "Your account is restricted",
+    restrictedBody:
+      "After repeatedly giving away songs in the chat you can no longer join or watch matches. Your account and points remain. If you think this is wrong, write to us through the contact form.",
+  },
+
   kvkk: {
     draftLabel: "Draft.",
     draftBody:
@@ -401,7 +413,7 @@ export const site: Site = {
       "Account: nickname, an irreversible hash of the password, avatar and genre preferences",
       "Game: matches played, song links sent, cards and points",
       "Chat: messages during a match (deleted when it ends) and a copy of reported messages kept for review",
-      "Moderation: the nickname of accounts deleted for rule violations and the reason for deletion",
+      "Moderation: the nickname of warned or restricted accounts and the reason for it",
     ],
     purposeTitle: "Purposes of processing",
     purposeBody:

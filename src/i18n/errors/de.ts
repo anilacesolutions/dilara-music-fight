@@ -5,6 +5,9 @@ export const errors: Errors = {
   notAPlayer: "Du bist in diesem Match kein Spieler.",
   spectatorsBlocked: "Die Spieler haben dieses Match für Zuschauer geschlossen.",
   spectatorChatBlocked: "Die Spieler haben den Zuschauer-Chat ausgeschaltet; zuschauen ja, schreiben nein.",
+  noReviewOpen: "Gerade wartet keine Entscheidung auf eine Videoprüfung.",
+  noReviewsLeft: "Du hast deine Videoprüfung in diesem Match schon genutzt.",
+  reviewPending: "Die Videoprüfung läuft noch; warte das Ergebnis ab.",
 
   noSuchRoom: "Diesen Raum gibt es nicht.",
   roomCreateFailed: "Der Raum konnte nicht erstellt werden, versuch es noch einmal.",
@@ -53,7 +56,10 @@ export const errors: Errors = {
   messageTooLong: (p: { max: number }) => `Eine Nachricht darf höchstens ${p.max} Zeichen haben.`,
   noLinks: "Links im Chat sind nicht erlaubt.",
   tooFast: "Langsamer — warte eine Sekunde zwischen den Nachrichten.",
-  tipDeleted: "Dein Konto wurde dauerhaft gelöscht, weil du im Chat einen Song verraten hast.",
+  tipWarned: (p: { count: number; limit: number }) =>
+    `Songtipps im Chat sind verboten. Das ist Verwarnung ${p.count}; bei ${p.limit} wird dein Konto eingeschränkt.`,
+  tipRestricted: "Dein Konto wurde eingeschränkt, weil du im Chat einen Song verraten hast: keine Matches und kein Zuschauen mehr.",
+  accountRestricted: "Dein Konto ist eingeschränkt: Du kannst keine Matches spielen oder ansehen.",
   messageNotFound: "Nachricht nicht gefunden — das Match ist vielleicht vorbei.",
   cannotReportSelf: "Deine eigene Nachricht kannst du nicht melden.",
   cannotBlockSelf: "Dich selbst kannst du nicht blockieren.",

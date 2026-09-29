@@ -11,6 +11,10 @@ export interface CurrentUser {
   nickname: string;
   avatar: string;
   totalPoints: number;
+  /** Upheld chat violations so far. */
+  warnings: number;
+  /** Closed off after too many violations: no matches, no watching. */
+  restricted: boolean;
 }
 
 /** Memoised per request, so a header and a page can both ask without two lookups. */
@@ -21,7 +25,7 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const users = await usersCollection();
   const user = await users.findOne(
     { _id: userId },
-    { projection: { nickname: 1, avatar: 1, totalPoints: 1 } },
+    { projection: { nickname: 1, avatar: 1, totalPoints: 1, warnings: 1, restrictedAt: 1 } },
   );
   if (!user) return null;
 
@@ -30,6 +34,8 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     nickname: user.nickname,
     avatar: user.avatar,
     totalPoints: user.totalPoints,
+    warnings: user.warnings ?? 0,
+    restricted: Boolean(user.restrictedAt),
   };
 });
 

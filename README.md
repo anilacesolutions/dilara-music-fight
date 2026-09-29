@@ -60,8 +60,12 @@ Site Türkçe, İngilizce ve Almanca yayında. Her sayfa `/<dil>/…` altında: 
 6. **Hakem şarkıya hemen karar verir ama karar mühürlü kalır** — oyunculardan da izleyicilerden de.
    Açılış şarkısı anlaşılan türe göre, sonraki her şarkı bir öncekinin formatına göre değerlendirilir.
 7. Rakip şarkının en az %80'ini dinler, sonra kararını verir: sarı kart, kırmızı kart ya da kart yok.
-8. Karar verildiği an mühür herkes için açılır ve puanlar yazılır. Hakem de kartı haklı bulduysa kart siciline işler:
-   kırmızıda ya da ikinci sarıda maç orada biter, kartı yiyen kaybeder. Aksi hâlde rakip kendi şarkısını atar.
+8. Karar verildiği an mühür herkes için açılır ve puanlar yazılır.
+9. **Hakem kartı haklı bulduysa kart hemen işlemez: VAR penceresi açılır.** Kartı yiyen oyuncu 45 saniye içinde kararı
+   kabul eder ya da VAR'a gider. VAR ikinci ve daha kapsamlı bir incelemedir, son söz onundur; kararı bozarsa kart iptal
+   olur, şarkı uyumlu sayılır, puan düzeltilir ve kart gösterene iade edilir. Maç başına oyuncu başına bir VAR hakkı var,
+   süre dolarsa kart kendiliğinden geçerli sayılır. Pencere açıkken sıra saati durur ve şarkı atılamaz.
+10. Kart geçerli kaldıysa sicile işler: kırmızıda ya da ikinci sarıda maç orada biter, kartı yiyen kaybeder.
 
 İlk şarkı atılana kadar her iki oyuncu da **Maçtan Ayrıl** diyebilir: oda kapanır, kimseye puan yazılmaz.
 İlk şarkıdan sonra bu kapı kapanır, çıkmak isteyen pes eder.
@@ -90,6 +94,7 @@ süresi dolmuş maçı bitirir.
 | Açılış şarkısı (anlaşılan türe göre) | +30 / −20 |
 | Haklı çıkan sarı / kırmızı kart (şarkı sahibine ek) | −5 / −10 |
 | **Haklı çıkan kırmızı ya da ikinci sarı** | kartı yiyen maçı kaybeder, maç orada biter |
+| VAR kararı bozarsa | kart iptal, şarkı +30 sayılır, kart sahibine iade edilir |
 | Rakibin şarkısını dinlemeden atlamak (atlayana, sınırsız; atlanan şarkıya sadece sarı kart) | −5 |
 | Hakemin uyumlu bulduğu şarkıya kart | kart boşa gider |
 | Galibiyet / beraberlik bonusu (min. 3'er şarkı) | +10 / ikisine +5 |
@@ -101,7 +106,7 @@ süresi dolmuş maçı bitirir.
 - Ayrı bir anahtar izleyicilerin **yazmasını** kapatır: okumaya devam ederler, mesaj gönderemezler (varsayılan açık).
 - Üst barda canlı izleyici sayısı görünür (son 20 saniyede yoklama yapanlar).
 - Oyuncular ve izleyiciler aynı sohbete yazar, hızlı emoji atar.
-- **Link paylaşmak engellenir.** Şarkı adı/sanatçı/ipucu vermek hesabın kalıcı olarak silinmesiyle cezalandırılır —
+- **Link paylaşmak engellenir.** Şarkı adı/sanatçı/ipucu vermek ilk iki seferde uyarı, üçüncüde hesap kısıtlaması getirir (maç yok, izleme yok) —
   bu kararı sohbet hakemi verir ([src/lib/judge/chat.ts](src/lib/judge/chat.ts)); şimdilik yer tutucu, kimseyi işaretlemiyor.
 - Kötü sözler kelime bazında maskelenir ([src/lib/profanity.ts](src/lib/profanity.ts)).
 - Mesajlar şikayet edilebilir (kopyası `reports` koleksiyonunda saklanır) ve yazanı engellenebilir.
@@ -152,7 +157,7 @@ src/
 ```
 
 MongoDB koleksiyonları: `users`, `sessions` (TTL), `rooms`, `score_events` (puan defteri),
-`chat_messages` (TTL 24 sa), `presence` (izleyici yoklaması, TTL), `reports`, `moderation_log`, `contact_messages`.
+`chat_messages` (TTL 24 sa), `presence` (izleyici yoklaması, TTL), `reports`, `moderation_log` (uyarı ve kısıtlama kaydı), `contact_messages`.
 
 ### API
 

@@ -7,6 +7,7 @@ import {
   MIN_SIGNUP_AGE,
   MIN_SIGNUP_GENRES,
   MIN_SONGS_PER_PLAYER,
+  REVIEW_SECONDS,
   SCORING,
   SETUP_SECONDS,
   TURN_SECONDS,
@@ -40,6 +41,7 @@ export default async function HelpPage() {
       a: t.cardsA(CARDS_PER_PLAYER.yellow, SCORING.cardPenalty.yellow, SCORING.cardPenalty.red),
     },
     { q: t.refereeQ, a: t.refereeA },
+    { q: t.varQ, a: t.varA(REVIEW_SECONDS) },
     {
       q: t.scoringQ,
       a: t.scoringA(SCORING.match, SCORING.mismatch, SCORING.winBonus, SCORING.drawBonus, MIN_SONGS_PER_PLAYER),

@@ -105,3 +105,69 @@ export const JUDGE_RESULT_SCHEMA = {
   required: ["matches", "confidence", "reason", "artist", "song", "genre"],
   additionalProperties: false,
 } as const;
+
+/**
+ * The second opinion. It sees the same evidence plus the first ruling, and is
+ * told to take its time - its job is to catch a first ruling that was wrong,
+ * not to agree out of politeness.
+ */
+export const JUDGE_REVIEW_SYSTEM_PROMPT = `Sen "Music Fight"ın VAR hakemisin.
+
+Sahadaki hakem bir şarkıyı formata UYMUYOR diye işaretledi ve rakip bu karara
+kart gösterdi. Şimdi karar sana geldi ve son söz senin.
+
+Oyun: İki oyuncu sırayla YouTube'dan şarkı atar. Maçın bir açılış TÜRÜ vardır;
+açılış şarkısı o türe uymak zorundadır. Sonraki her şarkı bir önceki şarkının
+FORMATINA yakın olmak zorundadır. Format, tür ve alt tür, enerji ve tempo,
+dönem ve sahne, prodüksiyon karakterinin bileşimidir.
+
+Senden beklenen, sahadaki hakemden daha dikkatli bir inceleme:
+- Sanatçıyı ve parçayı gerçekten tanı; başlıktaki "(Official Video)", "Lyrics",
+  "4K", "HD" gibi ekleri yok say.
+- Alt tür komşuluklarını tek tek düşün. Death metal ile black metal komşudur,
+  grunge ile alternatif rock komşudur, house ile french house komşudur.
+  Prog metal ile Türkçe pop komşu değildir.
+- Maçın o ana kadarki gidişatına bak: müzik zaten bir yöne sürüklenmiş olabilir
+  ve şarkı o sürüklenmenin makul bir devamı olabilir.
+- Sahadaki hakem yanılmış olabilir. Kararı yalnızca gerçekten yanlışsa bozarsan
+  doğru davranmış olursun; emin değilsen kararı bozmayacaksın.
+
+matches alanı senin son kararındır: true ise şarkı uyuyor demektir ve kart
+iptal edilir; false ise kart geçerli kalır.
+
+Gerekçeni iki oyuncu ve bütün izleyiciler okuyacak; bir kez yazıyorsun, o yüzden
+AYNI gerekçeyi üç dilde birden ver ve neden bu sonuca vardığını somut olarak yaz.
+
+Cevabını SADECE şu JSON şemasında ver, başka hiçbir şey yazma:
+{
+  "matches": boolean,
+  "confidence": number,
+  "reason": { "tr": string, "en": string, "de": string },
+  "artist": string|null,
+  "song": string|null,
+  "genre": string|null
+}`;
+
+/** The user-turn text for a video check: the same evidence, plus the first ruling. */
+export function buildReviewPrompt(input: JudgeInput): string {
+  const lines = ["İNCELENEN ŞARKI -> " + describe(input.current)];
+
+  if (input.previous) {
+    lines.push(`ÖNCEKİ ŞARKI    -> ${describe(input.previous)}`);
+  } else if (input.genre) {
+    lines.push(`Bu bir AÇILIŞ hamlesi. Maçın türü: "${input.genre}".`);
+  }
+
+  const history = input.history.slice(-6);
+  if (history.length > 0) {
+    lines.push("", "Maçın gidişatı (eskiden yeniye):");
+    for (const [index, track] of history.entries()) lines.push(`  ${index + 1}. ${describe(track)}`);
+  }
+
+  lines.push(
+    "",
+    "Sahadaki hakem bu şarkıyı UYMUYOR saydı ve kart geçerli sayıldı.",
+    "Bu kararı inceleyip son kararı sen ver.",
+  );
+  return lines.join("\n");
+}
