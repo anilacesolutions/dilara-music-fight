@@ -145,6 +145,10 @@ async function ensureIndexes(db: Db): Promise<void> {
     db.collection("presence").createIndex({ lastSeenAt: 1 }, { expireAfterSeconds: 300 }),
     db.collection("reports").createIndex({ createdAt: -1 }),
     db.collection("contact_messages").createIndex({ createdAt: -1 }),
+    db.collection("youtube_searches").createIndex({ key: 1 }, { unique: true }),
+    // A week is long enough to blunt the quota cost and short enough that a
+    // newly uploaded song still turns up.
+    db.collection("youtube_searches").createIndex({ createdAt: 1 }, { expireAfterSeconds: 604_800 }),
   ]);
 }
 

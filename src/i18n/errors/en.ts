@@ -72,6 +72,8 @@ export const errors: Errors = {
   noLiveStreams: "Live streams are not accepted.",
   durationUnreadable: "The length of the song couldn't be read, try another link.",
   trackTooLong: (p: { minutes: number }) => `Songs longer than ${p.minutes} minutes are not accepted.`,
+  searchUnavailable: "Search is not working right now. Paste the song's link instead.",
+  searchQuotaSpent: "We have used up today's searches. Paste the song's link instead.",
 
   refereeUnavailable: "The referee can't answer right now, try again in a few seconds.",
   refereeUnreadable: "The referee's ruling couldn't be read, please send the song again.",

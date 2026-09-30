@@ -73,6 +73,8 @@ export const errors: Errors = {
   noLiveStreams: "Livestreams werden nicht angenommen.",
   durationUnreadable: "Die Länge des Songs war nicht lesbar, versuch einen anderen Link.",
   trackTooLong: (p: { minutes: number }) => `Songs über ${p.minutes} Minuten werden nicht angenommen.`,
+  searchUnavailable: "Die Suche funktioniert gerade nicht. Füge stattdessen den Link des Songs ein.",
+  searchQuotaSpent: "Die Suchen für heute sind aufgebraucht. Füge stattdessen den Link des Songs ein.",
 
   refereeUnavailable: "Der Schiedsrichter antwortet gerade nicht, versuch es in ein paar Sekunden noch einmal.",
   refereeUnreadable: "Das Urteil des Schiedsrichters war nicht lesbar, schick den Song noch einmal.",

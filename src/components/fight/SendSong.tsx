@@ -25,14 +25,52 @@ interface SendSongProps {
   onSend: (url: string) => Promise<boolean>;
 }
 
+const watchUrl = (videoId: string) => `https://www.youtube.com/watch?v=${videoId}`;
+
 export function SendSong({ isOpening, genre, busy, onSend }: SendSongProps) {
+  // Searching is the way in; pasting a link stays for when the quota runs out
+  // or somebody already has the link in hand.
+  const [pasting, setPasting] = useState(false);
+
+  const [query, setQuery] = useState("");
+  const [hits, setHits] = useState<Preview[] | null>(null);
+  const [searching, setSearching] = useState(false);
+
   const [url, setUrl] = useState("");
   const [preview, setPreview] = useState<Preview | null>(null);
   const [checking, setChecking] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
+
   const ui = useUi();
   const locale = useLocale();
   const t = ui.send;
+
+  /** One search, on submit only. Searching as the player types would spend the
+   *  day's quota in an afternoon. */
+  async function runSearch(event: React.FormEvent) {
+    event.preventDefault();
+    const words = query.trim();
+    if (!words) return;
+
+    setSearching(true);
+    setProblem(null);
+    setPreview(null);
+    try {
+      const data = await getJson<{ hits: Preview[] }>(`/api/tracks/search?q=${encodeURIComponent(words)}`);
+      setHits(data.hits);
+    } catch (err) {
+      setHits(null);
+      setProblem(err instanceof Error && err.message ? err.message : t.searchFailed);
+    } finally {
+      setSearching(false);
+    }
+  }
+
+  function pick(hit: Preview) {
+    setPreview(hit);
+    setUrl(watchUrl(hit.videoId));
+    setProblem(null);
+  }
 
   async function check(event: React.FormEvent) {
     event.preventDefault();
@@ -55,6 +93,8 @@ export function SendSong({ isOpening, genre, busy, onSend }: SendSongProps) {
   async function send() {
     if (await onSend(url.trim())) {
       setUrl("");
+      setQuery("");
+      setHits(null);
       setPreview(null);
     }
   }
@@ -79,48 +119,137 @@ export function SendSong({ isOpening, genre, busy, onSend }: SendSongProps) {
         )}
       </p>
 
-      <form onSubmit={check} className="mt-5 flex flex-col gap-2 sm:flex-row">
-        {/* A pasted link is long and awkward to wipe on a phone, so it gets its own button. */}
-        <div className="relative flex-1">
-          <input
-            value={url}
-            onChange={(event) => {
-              setUrl(event.target.value);
-              setPreview(null);
-              setProblem(null);
-            }}
-            type="url"
-            inputMode="url"
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck={false}
-            placeholder="https://www.youtube.com/watch?v=…"
-            aria-label={t.urlLabel}
-            className="field w-full pr-11"
-          />
-          {url !== "" && (
-            <button
-              type="button"
-              onClick={() => {
-                setUrl("");
+      {pasting ? (
+        <form onSubmit={check} className="mt-5 flex flex-col gap-2 sm:flex-row">
+          {/* A pasted link is long and awkward to wipe on a phone, so it gets its own button. */}
+          <div className="relative flex-1">
+            <input
+              value={url}
+              onChange={(event) => {
+                setUrl(event.target.value);
                 setPreview(null);
                 setProblem(null);
               }}
-              aria-label={t.clear}
-              title={t.clear}
-              className="absolute right-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-lg text-muted transition hover:bg-surface-2 hover:text-ink-100"
-            >
-              ✕
-            </button>
-          )}
-        </div>
-        <button type="submit" disabled={checking || !url.trim()} className="btn btn-ghost shrink-0">
-          {checking ? t.checking : t.check}
-        </button>
-      </form>
+              type="url"
+              inputMode="url"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              placeholder="https://www.youtube.com/watch?v=…"
+              aria-label={t.urlLabel}
+              className="field w-full pr-11"
+            />
+            {url !== "" && (
+              <button
+                type="button"
+                onClick={() => {
+                  setUrl("");
+                  setPreview(null);
+                  setProblem(null);
+                }}
+                aria-label={t.clear}
+                title={t.clear}
+                className="absolute right-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-lg text-muted transition hover:bg-surface-2 hover:text-ink-100"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          <button type="submit" disabled={checking || !url.trim()} className="btn btn-ghost shrink-0">
+            {checking ? t.checking : t.check}
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={runSearch} className="mt-5 flex flex-col gap-2 sm:flex-row">
+          <div className="relative flex-1">
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              type="search"
+              autoComplete="off"
+              placeholder={t.searchPlaceholder}
+              aria-label={t.searchLabel}
+              className="field w-full pr-11"
+            />
+            {query !== "" && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  setHits(null);
+                  setPreview(null);
+                  setProblem(null);
+                }}
+                aria-label={t.clear}
+                title={t.clear}
+                className="absolute right-1 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-lg text-lg text-muted transition hover:bg-surface-2 hover:text-ink-100"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          <button type="submit" disabled={searching || !query.trim()} className="btn btn-ghost shrink-0">
+            {searching ? t.searching : t.search}
+          </button>
+        </form>
+      )}
+
+      <button
+        type="button"
+        onClick={() => {
+          setPasting((was) => !was);
+          setProblem(null);
+          setPreview(null);
+        }}
+        className="mt-2 text-xs text-muted underline decoration-dotted underline-offset-2 transition hover:text-ink-200"
+      >
+        {pasting ? t.searchInstead : t.pasteInstead}
+      </button>
 
       {problem && <p className="mt-3 text-sm text-blaze">{problem}</p>}
+
+      {!pasting && hits !== null && hits.length === 0 && !searching && (
+        <p className="mt-3 text-sm text-muted">{t.noResults}</p>
+      )}
+
+      {!pasting && hits !== null && hits.length > 0 && (
+        <ul className="mt-4 max-h-96 space-y-1 overflow-y-auto pr-1">
+          {hits.map((hit) => {
+            const chosen = preview?.videoId === hit.videoId;
+            return (
+              <li key={hit.videoId}>
+                <button
+                  type="button"
+                  onClick={() => pick(hit)}
+                  aria-pressed={chosen}
+                  className={`flex w-full items-center gap-3 rounded-xl border p-2 text-left transition ${
+                    chosen ? "border-volt-400/60 bg-volt-500/10" : "border-transparent hover:bg-surface-2/60"
+                  }`}
+                >
+                  <Image
+                    src={`https://i.ytimg.com/vi/${hit.videoId}/mqdefault.jpg`}
+                    alt=""
+                    width={96}
+                    height={54}
+                    unoptimized
+                    className="h-[54px] w-24 shrink-0 rounded-lg object-cover"
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="line-clamp-2 block text-sm font-medium">{hit.title}</span>
+                    <span className="mt-0.5 block text-xs text-muted">
+                      {hit.channel} · {formatDuration(hit.durationSeconds)}
+                    </span>
+                  </span>
+                  <span className={`shrink-0 text-xs font-semibold ${chosen ? "text-volt-200" : "text-muted"}`}>
+                    {t.pick}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
       {preview && (
         <div className="animate-rise-in mt-4 flex flex-col gap-4 rounded-2xl border border-line bg-surface-2/60 p-3 sm:flex-row sm:items-center">

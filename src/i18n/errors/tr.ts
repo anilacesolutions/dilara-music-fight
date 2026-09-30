@@ -85,6 +85,8 @@ export const errors = {
   noLiveStreams: "Canlı yayınlar kabul edilmiyor.",
   durationUnreadable: "Şarkının süresi okunamadı, başka bir link dene.",
   trackTooLong: (p: { minutes: number }) => `${p.minutes} dakikadan uzun şarkılar kabul edilmiyor.`,
+  searchUnavailable: "Arama şu an çalışmıyor. Şarkının linkini yapıştırarak gönderebilirsin.",
+  searchQuotaSpent: "Bugünkü arama hakkımız doldu. Şarkının linkini yapıştırarak gönderebilirsin.",
 
   // Referee
   refereeUnavailable: "Hakem şu an cevap veremiyor, birkaç saniye sonra tekrar dene.",

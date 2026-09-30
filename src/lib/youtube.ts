@@ -1,5 +1,6 @@
 import "server-only";
 import { GameError } from "./errors";
+import { getDb } from "./mongodb";
 import { MAX_TRACK_SECONDS } from "./rules";
 import type { Track } from "./types";
 
@@ -188,4 +189,147 @@ export async function resolveTrack(input: string): Promise<Track> {
     song: null,
     genre: null,
   };
+}
+
+/* ------------------------------------------------------------------------- *
+ * Searching inside the app
+ * ------------------------------------------------------------------------- */
+
+/** One playable result, already filtered down to something that can be sent. */
+export interface TrackHit {
+  videoId: string;
+  title: string;
+  channel: string;
+  durationSeconds: number;
+}
+
+/**
+ * How many results the player sees. We ask YouTube for more than this because
+ * live streams and anything over the length limit are dropped before the list
+ * is shown - offering a song that cannot be sent is worse than offering fewer.
+ */
+const SEARCH_RESULTS = 12;
+const SEARCH_FETCH = 25;
+
+/**
+ * Search is the expensive call: one search costs 100 quota units against a
+ * default allowance of 10,000 a day, while looking a video up costs 1. Two
+ * hundred searches would take the whole day's budget and leave the match
+ * unable to accept songs at all, so every query is answered from Mongo when we
+ * have seen it before. In a game about Turkish pop the same handful of names
+ * come up constantly, which is exactly the shape caching rewards. Entries live
+ * a week, which Mongo enforces itself through the TTL index in `mongodb.ts`.
+ */
+
+/** The cache key: same words in the same order, whatever the spacing or case. */
+function searchKey(query: string): string {
+  return query.trim().replace(/\s+/g, " ").toLocaleLowerCase("tr");
+}
+
+interface VideoDetail {
+  seconds: number | null;
+  live: boolean;
+  title: string;
+  channel: string;
+}
+
+/** One `videos.list` call for a whole page of ids - 1 unit, not 1 per video. */
+async function detailsFor(ids: string[], apiKey: string): Promise<Map<string, VideoDetail>> {
+  const found = new Map<string, VideoDetail>();
+  if (ids.length === 0) return found;
+
+  const res = await fetch(
+    `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet&id=${ids.join(",")}&key=${apiKey}`,
+    { cache: "no-store" },
+  );
+  if (!res.ok) throw new GameError("searchUnavailable", 502);
+
+  const data = (await res.json()) as {
+    items?: {
+      id?: string;
+      contentDetails?: { duration?: string };
+      snippet?: { title?: string; channelTitle?: string; liveBroadcastContent?: string };
+    }[];
+  };
+
+  for (const item of data.items ?? []) {
+    if (!item.id) continue;
+    const iso = item.contentDetails?.duration;
+    found.set(item.id, {
+      seconds: iso ? parseIsoDuration(iso) : null,
+      live: (item.snippet?.liveBroadcastContent ?? "none") !== "none",
+      title: item.snippet?.title ?? "",
+      channel: item.snippet?.channelTitle ?? "",
+    });
+  }
+  return found;
+}
+
+/** Turns YouTube's 403 into the one thing the player needs to hear. */
+async function searchFailure(res: Response): Promise<never> {
+  const body = (await res.json().catch(() => null)) as
+    | { error?: { errors?: { reason?: string }[] } }
+    | null;
+  const reason = body?.error?.errors?.[0]?.reason;
+  if (reason === "quotaExceeded" || reason === "dailyLimitExceeded") {
+    throw new GameError("searchQuotaSpent", 503);
+  }
+  throw new GameError("searchUnavailable", 502);
+}
+
+/**
+ * Songs matching a query, ready to be sent: embeddable, not live, and inside
+ * the length limit. Restricted to YouTube's music category, which keeps
+ * reaction videos and lyric-less uploads out of a list about songs.
+ */
+export async function searchTracks(query: string): Promise<TrackHit[]> {
+  const key = searchKey(query);
+  if (key.length < 2) return [];
+
+  const db = await getDb();
+  const cache = db.collection<{ key: string; hits: TrackHit[]; createdAt: Date }>("youtube_searches");
+
+  const cached = await cache.findOne({ key });
+  if (cached) return cached.hits;
+
+  const apiKey = process.env.YOUTUBE_API_KEY;
+  if (!apiKey) throw new GameError("searchUnavailable", 503);
+
+  const params = new URLSearchParams({
+    part: "snippet",
+    type: "video",
+    // Anything the player cannot actually play is noise in this list.
+    videoEmbeddable: "true",
+    videoSyndicated: "true",
+    videoCategoryId: "10",
+    maxResults: String(SEARCH_FETCH),
+    q: key,
+    key: apiKey,
+  });
+
+  const res = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`, { cache: "no-store" });
+  if (!res.ok) await searchFailure(res);
+
+  const data = (await res.json()) as { items?: { id?: { videoId?: string } }[] };
+  const ids = (data.items ?? []).map((item) => item.id?.videoId).filter((id): id is string => Boolean(id));
+
+  const details = await detailsFor(ids, apiKey);
+  const hits: TrackHit[] = [];
+  for (const videoId of ids) {
+    const detail = details.get(videoId);
+    if (!detail || detail.live) continue;
+    if (detail.seconds === null || detail.seconds > MAX_TRACK_SECONDS) continue;
+    hits.push({ videoId, title: detail.title, channel: detail.channel, durationSeconds: detail.seconds });
+    if (hits.length === SEARCH_RESULTS) break;
+  }
+
+  // An empty answer is cached too: repeating a query that found nothing must
+  // not cost another hundred units.
+  await cache.updateOne(
+    { key },
+    { $set: { key, hits, createdAt: new Date() } },
+    { upsert: true },
+  );
+
+  return hits;
 }
