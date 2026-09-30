@@ -17,7 +17,17 @@ export type Consent = "granted" | "denied" | null;
 /** Fired on `window` when the footer asks for the banner again. */
 export const CONSENT_REOPEN_EVENT = "mf:consent-reopen";
 
-const TOKEN = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN;
+/*
+ * A Mixpanel project token is a public identifier, not a secret: it is inlined
+ * into the browser bundle by design, so anyone who opens the page can read it
+ * whichever way it gets there. Keeping it in the code costs nothing in secrecy
+ * and buys the one thing the environment variable could not give us - the
+ * analytics work on a deployment whose console we do not control. The variable
+ * still wins when it is set, so another project can be pointed at without a
+ * code change.
+ */
+const FALLBACK_TOKEN = "354e94b5c5aec414bcafe6e175f6a478";
+const TOKEN = process.env.NEXT_PUBLIC_MIXPANEL_TOKEN || FALLBACK_TOKEN;
 /** Set to https://api-eu.mixpanel.com for a project with EU data residency. */
 const API_HOST = process.env.NEXT_PUBLIC_MIXPANEL_HOST;
 
