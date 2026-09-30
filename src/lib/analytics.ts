@@ -81,6 +81,13 @@ async function load(): Promise<OverridedMixpanel | null> {
       opt_out_tracking_by_default: true,
     });
     mixpanel.opt_in_tracking();
+    // Super properties ride along on every event. The build stamp is the one
+    // that earns its place here: when a number moves, the first question is
+    // which deployment the people behind it were looking at.
+    mixpanel.register({
+      platform: "web",
+      app_version: process.env.NEXT_PUBLIC_BUILD_SHA?.slice(0, 7) ?? "dev",
+    });
     client = mixpanel;
     return mixpanel;
   });
