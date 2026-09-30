@@ -285,6 +285,12 @@ export const ui: Ui = {
     skippedTitle: (penalty: number) => `Der Gegner hat ohne Hören geantwortet (${penalty})`,
     yellowTitle: "Gelbe Karte",
     redTitle: "Rote Karte",
+    varOpen: "Warten auf den VAR",
+    varUpheld: "VAR: Entscheidung bleibt",
+    varOverturned: "VAR: Entscheidung aufgehoben",
+    varAccepted: "Karte akzeptiert, kein VAR",
+    varExpired: "Zeit abgelaufen, kein VAR",
+    varWhy: "warum?",
   },
 
   verdict: {

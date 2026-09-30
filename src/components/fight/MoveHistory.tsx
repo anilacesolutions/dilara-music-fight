@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useLocale, useUi } from "@/i18n/client";
 import { formatDuration, formatPoints } from "@/lib/format";
 import { SCORING } from "@/lib/rules";
-import type { MoveView, PlayerSlot, PlayerView } from "@/lib/types";
+import type { MoveView, PlayerSlot, PlayerView, ReviewView } from "@/lib/types";
 
 function trackLabel(move: MoveView): string {
   return move.track.artist && move.track.song ? `${move.track.artist} — ${move.track.song}` : move.track.title;
@@ -92,6 +92,8 @@ export function MoveHistory({ moves, players, me }: MoveHistoryProps) {
                       </span>
                     )}
                   </div>
+
+                  {move.review && <VarNote review={move.review} />}
                 </div>
               </li>
             );
@@ -99,6 +101,53 @@ export function MoveHistory({ moves, players, me }: MoveHistoryProps) {
         </ol>
       )}
     </section>
+  );
+}
+
+/**
+ * What happened to the card upstairs, kept with the song.
+ *
+ * The check itself is a panel that lives on the screen for one turn and then
+ * goes, which left nowhere to look up why a card stood - the complaint that
+ * prompted this. Here the ruling stays readable for the rest of the match and
+ * after it, folded away so it does not shout over the row.
+ */
+function VarNote({ review }: { review: ReviewView }) {
+  const t = useUi().history;
+  const locale = useLocale();
+
+  const overturned = review.outcome === "overturned";
+  const label =
+    review.outcome === null
+      ? t.varOpen
+      : review.reason
+        ? overturned
+          ? t.varOverturned
+          : t.varUpheld
+        : review.auto
+          ? t.varExpired
+          : t.varAccepted;
+  const tone =
+    review.outcome === null || !review.reason
+      ? "border-line text-muted"
+      : overturned
+        ? "border-mint/40 bg-mint/10 text-mint"
+        : "border-blaze/40 bg-blaze/10 text-blaze";
+  const reason = review.reason?.[locale] ?? null;
+  const badge = `inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[10px] ${tone}`;
+
+  // Nothing to unfold when the card was never actually checked.
+  if (!reason) return <span className={`mt-1.5 ${badge}`}>📺 {label}</span>;
+
+  return (
+    <details className="mt-1.5">
+      <summary className={`cursor-pointer list-none ${badge} [&::-webkit-details-marker]:hidden`}>
+        📺 {label}
+        <span className="opacity-50">·</span>
+        <span className="underline decoration-dotted underline-offset-2 opacity-80">{t.varWhy}</span>
+      </summary>
+      <p className="mt-1.5 text-xs leading-relaxed text-ink-300">{reason}</p>
+    </details>
   );
 }
 

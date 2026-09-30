@@ -285,6 +285,12 @@ export const ui = {
     skippedTitle: (penalty: number) => `Rakibi bu şarkıyı dinlemeden atladı (${penalty})`,
     yellowTitle: "Sarı kart",
     redTitle: "Kırmızı kart",
+    varOpen: "VAR bekleniyor",
+    varUpheld: "VAR: karar değişmedi",
+    varOverturned: "VAR: karar bozuldu",
+    varAccepted: "Kart kabul edildi, VAR'a gidilmedi",
+    varExpired: "Süre doldu, VAR'a gidilmedi",
+    varWhy: "neden?",
   },
 
   verdict: {

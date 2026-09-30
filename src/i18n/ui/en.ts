@@ -282,6 +282,12 @@ export const ui: Ui = {
     skippedTitle: (penalty: number) => `Their opponent answered this without listening (${penalty})`,
     yellowTitle: "Yellow card",
     redTitle: "Red card",
+    varOpen: "Waiting on VAR",
+    varUpheld: "VAR: decision stands",
+    varOverturned: "VAR: decision overturned",
+    varAccepted: "Card accepted, never went to VAR",
+    varExpired: "Time ran out, never went to VAR",
+    varWhy: "why?",
   },
 
   verdict: {
