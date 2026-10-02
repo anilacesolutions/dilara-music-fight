@@ -339,10 +339,10 @@ export const site = {
       "Yazı turayı kaybeden oyuncu belirler. Karşısına iki oyuncunun profilinde ortak olan türlerden oluşan bir liste çıkar; ortak tür azsa liste herkesin bildiği popüler türlerle beşe tamamlanır. Seçilen türü rakip bir kez reddedebilir, ikinci seçim kesindir. Bu tür yalnızca açılış şarkısını bağlar; sonraki her şarkı bir öncekine göre değerlendirilir.",
     sendQ: "Şarkıyı nasıl gönderirim?",
     sendA: (maxMinutes: number) =>
-      `YouTube linkini kutuya yapıştır, "Kontrol Et" de. Şarkının adını, kanalını ve süresini görürsün; doğruysa gönder. ${maxMinutes} dakikadan uzun şarkılar ve canlı yayınlar kabul edilmez. Aynı şarkı bir maçta iki kez çalınamaz.`,
-    listenQ: "Neden şarkıyı sesi açık dinlemek zorundayım?",
-    listenA: (percent: number) =>
-      `Karar verebilmen için rakibinin şarkısının en az %${percent}'ini dinlemen gerekiyor. Sayaç yalnızca şarkı çalarken ve ses açıkken ilerler; sesi kısıp beklemek süreyi doldurmaz. İleri sarmak da işe yaramaz, çünkü sayaç gerçekten duyduğun saniyeleri sayar, aynı yeri tekrar dinlemek de ikinci kez sayılmaz. Sebebi basit: kart kararı da hakem kararı da şarkıyı gerçekten dinlemiş olmana dayanıyor.`,
+      `Sıra sendeyken arama kutusuna sanatçı ya da şarkı adını yaz, çıkan listeden seç. Listede yalnızca gönderebileceğin şarkılar görünür: ${maxMinutes} dakikadan kısa, canlı yayın olmayan ve bizim oynatıcımızda çalabilen videolar. Elinde hazır bir YouTube linki varsa "Link yapıştır" deyip onu kullanabilirsin. Aynı şarkı bir maçta iki kez çalınamaz.`,
+    listenQ: "Neden şarkıyı dinlemek zorundayım?",
+    listenA:
+      "Rakibinin şarkısının, maç başında birlikte kararlaştırdığınız kadarını dinlemeden cevap veremezsin. Sayaç yalnızca şarkı çalarken ve ses açıkken ilerler; sesi kısıp beklemek süreyi doldurmaz. İleri sarmak da işe yaramaz, çünkü sayaç gerçekten duyduğun saniyeleri sayar ve aynı yeri tekrar dinlemek ikinci kez sayılmaz. Sebebi basit: hem kart kararı hem de itirazın, şarkıyı gerçekten dinlemiş olmana dayanıyor.",
     skipQ: "Dinlemeden cevap verebilir miyim?",
     skipA: (cost: number) =>
       `Verebilirsin ama bedeli var: ${cost} puan. Atladığın şarkıya sarı kart gösterebilirsin, kırmızı kart gösteremezsin — dinlemediğin bir şarkıyla rakibini maçtan atamazsın. Atlama hakkında sınır yok ve atladığın herkes tarafından görülür.`,
@@ -351,7 +351,7 @@ export const site = {
       `Rakibinin şarkısı sana formatın dışında geldiyse kart gösterirsin: sarı "tam oturmadı", kırmızı "kesinlikle alakasız" demektir. Kart ancak hakem de şarkıyı uyumsuz bulursa geçerli olur; hakem şarkıyı beğenirse kartın boşa gider ve hiçbir şey değişmez. Geçerli sayılan sarı kart rakibine ${yellowPenalty}, kırmızı kart ${redPenalty} puana mal olur. Asıl mesele puan değil: futboldaki gibi, geçerli bir kırmızı kart maçı orada bitirir ve kartı yiyen oyuncu maçı kaybeder. İki geçerli sarı kart da aynı kapıya çıkar. Her oyuncunun bir maçta ${yellows} sarı ve bir kırmızı kart hakkı vardır.`,
     varQ: "VAR nedir, nasıl kullanılır?",
     varA: (seconds: number) =>
-      `Futboldaki gibi: sahadaki hakem hızlı karar verir, VAR daha kapsamlı bakar. Rakibin sana kart gösterdiyse ve sahadaki hakem de ona hak verdiyse, kart hemen işlemez — önce senin önüne çıkar. ${seconds} saniyen var: kararı kabul edebilir ya da VAR'a gidebilirsin. VAR'a gidersen ikinci bir hakem maçın tamamına, önceki şarkılara ve alt tür komşuluklarına bakarak yeniden karar verir ve son söz onundur. Kararı bozarsa kart iptal olur, şarkın uyumlu sayılır, puanın düzeltilir ve kart rakibine geri verilir. Bozmazsa kart geçerli kalır. Maç başına bir VAR hakkın var; süre dolarsa kart kendiliğinden geçerli sayılır.`,
+      `Futboldaki gibi: sahadaki hakem hızlı karar verir, VAR daha kapsamlı bakar. Rakibin sana kart gösterdiyse ve sahadaki hakem de ona hak verdiyse, kart hemen işlemez — önce senin önüne çıkar. ${seconds} saniyen var: kararı kabul edebilir ya da VAR'a gidebilirsin. VAR'a gidersen ikinci bir hakem maçın tamamına, önceki şarkılara ve alt tür komşuluklarına bakarak yeniden karar verir ve son söz onundur. Kararı bozarsa kart iptal olur, şarkın uyumlu sayılır, puanın düzeltilir ve kart rakibine geri verilir. Bozmazsa kart geçerli kalır. Maç başına bir VAR hakkın var; süre dolarsa kart kendiliğinden geçerli sayılır. VAR'ın gerekçesini sonradan da okuyabilirsin: şarkı listesinde o şarkının altındaki VAR rozetine dokunman yeterli, maç bittikten sonra da orada durur.`,
     refereeQ: "Hakem ne yapar?",
     refereeA:
       "Hakem bir yapay zekâ. Şarkının başlığından ve kanalından sanatçıyı, parçayı ve türü çıkarır, sonra onu ya bir önceki şarkıyla ya da açılışta anlaşılan türle karşılaştırır. Kararını ve gerekçesini yazar. Gerekçe üç dilde birden yazılır, çünkü aynı karar iki oyuncu ve bütün izleyiciler tarafından okunur. Hakemin kararı sen kart kararını verene kadar mühürlü kalır; kimse önce bakıp ona göre davranamaz.",
@@ -367,6 +367,12 @@ export const site = {
     spectatorQ: "Başkalarının maçını izleyebilir miyim?",
     spectatorA:
       "Evet, oda kodu olan herkes izleyebilir. İzleyiciler yazı turayı, tür seçimini ve bütün şarkıları görür ama hiçbir butona basamaz. Oyuncular isterse maçı izleyicilere tamamen kapatabilir; isterlerse izlemeye açık bırakıp yalnızca izleyici sohbetini kapatabilirler. İzleyiciler puan kazanmaz.",
+    listenRuleQ: "Şarkıların yüzde kaçını dinlemek zorundayız?",
+    listenRuleA: (fallback: number, seconds: number) =>
+      `Bunu maçın başında, tür belirlendikten sonra ikiniz birlikte kararlaştırıyorsunuz. Kaydırıcıda %0, %20, %40, %60, %80 ve %100 var. Biriniz bir oran öneriyor, diğeri kabul edene kadar geçerli olmuyor; kabul etmek yerine kaydırıcıyı oynatıp kendi teklifini yapabilirsin, pazarlık serbest. ${seconds} saniye içinde anlaşamazsanız maç varsayılan %${fallback} ile başlar. %0 seçerseniz dinleme zorunluluğu tamamen kalkar, herkes istediği an cevap verir; %100 seçerseniz şarkıları sonuna kadar dinlemek zorundasınız. Anlaştığınız oran maç boyunca değişmez.`,
+    cookiesQ: "Çerezler ve verilerim ne oluyor?",
+    cookiesA:
+      "İki şey var. Birincisi oturum çerezi: giriş yapabilmen için zorunlu, onsuz site çalışmaz. İkincisi ölçümleme: hangi sayfaların ne kadar kullanıldığını görmek için Mixpanel kullanıyoruz ve bu tamamen senin iznine bağlı. Çerez bandında \"hayır\" dersen ölçümleme kodu hiç yüklenmez — kapalı duran bir kod değil, indirilmeyen bir kod; tek bir çerez bile yazılmaz. Fikrin değişirse sayfanın altındaki \"Çerez tercihleri\" bağlantısından kararını her zaman değiştirebilirsin. Ölçümlemeye adın, e-postan ya da nickname'in gönderilmez; yalnızca hesabının kimliği gider.",
     stillStuck: "Cevabını bulamadın mı?",
     stillStuckLink: "Bize yaz",
   },

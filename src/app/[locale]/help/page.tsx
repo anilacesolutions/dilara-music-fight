@@ -3,6 +3,7 @@ import { Link } from "@/i18n/link";
 import { getSite } from "@/i18n/server";
 import { CARDS_PER_PLAYER } from "@/lib/rules";
 import {
+  DEFAULT_LISTEN_RATIO,
   MAX_TRACK_SECONDS,
   MIN_SIGNUP_AGE,
   MIN_SIGNUP_GENRES,
@@ -11,7 +12,6 @@ import {
   SCORING,
   SETUP_SECONDS,
   TURN_SECONDS,
-  listenRatio,
 } from "@/lib/rules";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -25,7 +25,9 @@ export async function generateMetadata(): Promise<Metadata> {
  */
 export default async function HelpPage() {
   const t = (await getSite()).help;
-  const percent = Math.round(listenRatio() * 100);
+  // The share is agreed per match now, so the only number worth printing here
+  // is the one a match falls back to.
+  const fallbackPercent = Math.round(DEFAULT_LISTEN_RATIO * 100);
 
   const questions: { q: string; a: string }[] = [
     { q: t.playQ, a: t.playA },
@@ -34,7 +36,8 @@ export default async function HelpPage() {
     { q: t.coinQ, a: t.coinA(SETUP_SECONDS) },
     { q: t.genreQ, a: t.genreA },
     { q: t.sendQ, a: t.sendA(MAX_TRACK_SECONDS / 60) },
-    { q: t.listenQ, a: t.listenA(percent) },
+    { q: t.listenQ, a: t.listenA },
+    { q: t.listenRuleQ, a: t.listenRuleA(fallbackPercent, SETUP_SECONDS) },
     { q: t.skipQ, a: t.skipA(SCORING.skipPenalty) },
     {
       q: t.cardsQ,
@@ -49,6 +52,7 @@ export default async function HelpPage() {
     { q: t.endQ, a: t.endA(MIN_SONGS_PER_PLAYER, TURN_SECONDS / 60) },
     { q: t.chatQ, a: t.chatA },
     { q: t.spectatorQ, a: t.spectatorA },
+    { q: t.cookiesQ, a: t.cookiesA },
   ];
 
   return (

@@ -22,6 +22,8 @@ export const errors: Errors = {
   matchAlreadyStarted: "Das Match hat bereits begonnen.",
   throwCoinFirst: "Einer von euch muss zuerst die Münze werfen.",
   coinFirst: "Zuerst muss die Münze geworfen werden.",
+  listenRatioNotAnOption: "Dieser Höranteil ist keine der Optionen.",
+  genreFirst: "Zuerst muss das Genre feststehen.",
   genreNotYours: "Dein Gegner wählt das Genre.",
   awaitingAnswer: "Du wartest auf die Antwort deines Gegners.",
   genreNotAnOption: "Dieses Genre steht dir nicht zur Auswahl.",

@@ -144,6 +144,27 @@ export const ui: Ui = {
     startingSoon: (label: string) => `The match opens on ${label}`,
   },
 
+  listenRule: {
+    eyebrow: "Listening rule",
+    title: "How much of each song must be heard?",
+    note: (fallback: number) =>
+      `You cannot answer your opponent's song until you have heard this much of it. Both of you have to agree; if you do not, the match starts at ${fallback}%.`,
+    sliderLabel: "Required listening share",
+    noneHint: "No requirement - either of you may answer at once.",
+    someHint: "You cannot answer before you have heard this much.",
+    allHint: "You have to hear the song right through.",
+    propose: (p: number) => `Propose ${p}%`,
+    counter: (p: number) => `Offer ${p}% instead`,
+    accept: (p: number) => `Accept ${p}%`,
+    myProposal: (p: number) => `You proposed ${p}%`,
+    theirProposal: (name: string, p: number) => `${name} proposes ${p}%`,
+    answerNote: "Accept it, or move the slider and make your own offer.",
+    waitingNote: (name: string) => `Waiting on ${name}. Change your mind and you can propose another share.`,
+    watchingTitle: "The players are agreeing how much to listen",
+    watchingNote: "The match begins once they settle it.",
+    countdown: (seconds: number) => `Without an agreement in ${seconds} seconds the default applies.`,
+  },
+
   send: {
     yourTurn: "● Your turn",
     openingTitle: "Pick the opening song",

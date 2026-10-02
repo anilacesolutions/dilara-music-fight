@@ -29,6 +29,7 @@ import {
   REVIEWS_PER_PLAYER,
   REVIEW_SECONDS,
   YELLOWS_BEFORE_SENDING_OFF,
+  isListenRatio,
   listenRatio,
 } from "./rules";
 import type {
@@ -159,11 +160,36 @@ function emptySetup(): MatchSetup {
   return {
     coin: { thrownBy: null, thrownAt: null, pickedBy: null, pick: null, result: null, starter: null, resolvedAt: null, auto: false },
     genre: { options: [], picker: null, proposed: null, vetoed: false, genre: null, stageAt: null, lockedAt: null, auto: false },
+    listen: { proposed: null, proposedBy: null, ratio: null, stageAt: null, settledAt: null, auto: false },
   };
 }
 
-/** Rooms from before the setup existed have nothing to settle and start straight away. */
-const setupDone = (room: Room): boolean => !room.setup || room.setup.genre.lockedAt !== null;
+/** Rooms from before a step existed have nothing to settle and skip it. */
+const listenDone = (room: Room): boolean => !room.setup?.listen || room.setup.listen.settledAt !== null;
+const setupDone = (room: Room): boolean => !room.setup || (room.setup.genre.lockedAt !== null && listenDone(room));
+
+/**
+ * The share of each song this room settled on, falling back to the default
+ * for rooms that never chose. The test override still wins outside production
+ * so a suite does not have to sit through a real song.
+ */
+function roomListenRatio(room: Room): number {
+  const chosen = room.setup?.listen?.ratio;
+  if (chosen === null || chosen === undefined) return listenRatio();
+  if (process.env.NODE_ENV !== "production") {
+    const override = Number(process.env.MF_LISTEN_RATIO);
+    if (override > 0 && override <= 1) return override;
+  }
+  return chosen;
+}
+
+/** The listening step is open only between the genre locking and the first song. */
+function requireListenStep(room: Room): MatchSetup {
+  if (!room.setup?.listen) throw new GameError("noSetup", 409);
+  if (!room.setup.genre.lockedAt) throw new GameError("genreFirst", 409);
+  if (room.setup.listen.settledAt) throw new GameError("matchAlreadyStarted", 409);
+  return room.setup;
+}
 
 function requireSetup(room: Room): MatchSetup {
   if (!room.setup) throw new GameError("noSetup", 409);
@@ -173,15 +199,21 @@ function requireSetup(room: Room): MatchSetup {
 
 /** The moment the match proper began: the genre locking, or the join on older rooms. */
 function matchStart(room: Room): Date {
-  return room.setup?.genre.lockedAt ?? room.startedAt ?? room.updatedAt;
+  return (
+    room.setup?.listen?.settledAt ?? room.setup?.genre.lockedAt ?? room.startedAt ?? room.updatedAt
+  );
 }
 
 /** When the server stops waiting on a player and settles the current setup step itself. */
 function setupDeadline(room: Room): number | null {
   const setup = room.setup;
-  if (!setup || room.status !== "active" || setup.genre.lockedAt) return null;
+  if (!setup || room.status !== "active" || setupDone(room)) return null;
 
-  const from = setup.coin.resolvedAt ? setup.genre.stageAt : (setup.coin.thrownAt ?? room.startedAt);
+  const from = setup.genre.lockedAt
+    ? (setup.listen?.stageAt ?? setup.genre.lockedAt)
+    : setup.coin.resolvedAt
+      ? setup.genre.stageAt
+      : (setup.coin.thrownAt ?? room.startedAt);
   return from ? from.getTime() + SETUP_SECONDS * 1000 : null;
 }
 
@@ -236,6 +268,19 @@ function genreLock(genre: string, auto: boolean, now: Date) {
     "setup.genre.stageAt": null,
     "setup.genre.lockedAt": now,
     "setup.genre.auto": auto,
+    "setup.listen.stageAt": now,
+    updatedAt: now,
+  };
+}
+
+function listenSettle(ratio: number, auto: boolean, now: Date) {
+  return {
+    "setup.listen.ratio": ratio,
+    "setup.listen.proposed": null,
+    "setup.listen.proposedBy": null,
+    "setup.listen.stageAt": null,
+    "setup.listen.settledAt": now,
+    "setup.listen.auto": auto,
     updatedAt: now,
   };
 }
@@ -269,6 +314,18 @@ async function settleSetup(room: Room): Promise<Room> {
     return landed ?? loadRoom(room.code);
   }
 
+  if (setup.genre.lockedAt) {
+    // Nobody agreed on a share in time. A proposal left hanging is not taken as
+    // accepted here: this one costs the other player something, so silence
+    // falls back to the default rather than to whatever was last asked for.
+    const settled = await rooms.findOneAndUpdate(
+      { code: room.code, status: "active", "setup.listen.settledAt": null },
+      { $set: listenSettle(listenRatio(), true, now) },
+      { returnDocument: "after", projection: { _id: 0 } },
+    );
+    return settled ?? loadRoom(room.code);
+  }
+
   // A proposal nobody answered counts as accepted; silence on the pick is the server's call.
   const choice = setup.genre.proposed ?? setup.genre.options[randomInt(Math.max(1, setup.genre.options.length))];
   if (!choice) return room;
@@ -281,13 +338,13 @@ async function settleSetup(room: Room): Promise<Room> {
   return locked ?? loadRoom(room.code);
 }
 
-function listenWindowEnd(move: Move): number {
-  return move.createdAt.getTime() + move.track.durationSeconds * listenRatio() * 1000;
+function listenWindowEnd(room: Room, move: Move): number {
+  return move.createdAt.getTime() + move.track.durationSeconds * roomListenRatio(room) * 1000;
 }
 
 /** The server refuses a card call before this moment, whatever the browser claims. */
-function listenUnlockAt(move: Move): number {
-  return listenWindowEnd(move) - LISTEN_GRACE_MS;
+function listenUnlockAt(room: Room, move: Move): number {
+  return listenWindowEnd(room, move) - LISTEN_GRACE_MS;
 }
 
 /** When the player on turn must have sent their song. Silent until the setup is over. */
@@ -297,7 +354,7 @@ function turnDeadline(room: Room): number | null {
   // After a song lands the clock starts when its listening window closes;
   // the opener's clock starts when the genre is settled.
   if (openReview(room)) return null;
-  const start = last ? listenWindowEnd(last) : matchStart(room).getTime();
+  const start = last ? listenWindowEnd(room, last) : matchStart(room).getTime();
   return start + TURN_SECONDS * 1000 + (last?.reviewPausedMs ?? 0);
 }
 
@@ -470,6 +527,13 @@ function toSetupView(room: Room): SetupView | null {
       deadline: landed && !genre.lockedAt ? deadline : null,
       auto: genre.auto ?? false,
     },
+    listen: {
+      proposed: setup.listen?.proposed ?? null,
+      proposedBy: setup.listen?.proposedBy ?? null,
+      ratio: setup.listen?.ratio ?? null,
+      deadline: genre.lockedAt && !listenDone(room) ? deadline : null,
+      auto: setup.listen?.auto ?? false,
+    },
   };
 }
 
@@ -485,7 +549,8 @@ export function toRoomView(room: Room, viewerId: string, spectatorCount = 0): Ro
   else if (room.status === "expired") phase = "expired";
   else if (!me) phase = room.status === "waiting" ? "join" : "spectate";
   else if (room.status === "waiting") phase = "waiting";
-  else if (!setupDone(room)) phase = room.setup?.coin.resolvedAt ? "genre" : "coin";
+  else if (!setupDone(room))
+    phase = !room.setup?.coin.resolvedAt ? "coin" : !room.setup.genre.lockedAt ? "genre" : "listenRule";
   else if (openReview(room)) phase = "review";
   else if (room.turn !== me) phase = "opponent";
   else if (hasPending && pending.slot !== me) phase = "listen";
@@ -525,8 +590,8 @@ export function toRoomView(room: Room, viewerId: string, spectatorCount = 0): Ro
     setup: live ? toSetupView(room) : null,
     genre: room.setup?.genre.genre ? toGenreOption(room.setup.genre.genre) : null,
     canCancel: me !== null && live && room.moves.length === 0,
-    listenRatio: listenRatio(),
-    listenUnlockAt: hasPending ? listenUnlockAt(pending) : null,
+    listenRatio: roomListenRatio(room),
+    listenUnlockAt: hasPending ? listenUnlockAt(room, pending) : null,
     turnDeadline: turnDeadline(room),
     canAgreeToEnd: canAgreeToEnd(room),
     spectatorsAllowed: spectatorsAllowed(room),
@@ -775,6 +840,64 @@ export async function proposeGenre(code: string, user: CurrentUser, genre: strin
   return viewFor(updated, user);
 }
 
+/**
+ * How much of each song must be heard. Either player may put a share forward
+ * and the other has to agree, so neither can impose it; a counter-proposal
+ * simply replaces the one on the table. The setup clock bounds the haggling.
+ */
+export async function proposeListen(code: string, user: CurrentUser, ratio: number): Promise<RoomView> {
+  const room = await loadCurrentRoom(code);
+  const me = requireSlot(room, user);
+  requireActive(room);
+  const setup = requireListenStep(room);
+
+  if (!isListenRatio(ratio)) throw new GameError("listenRatioNotAnOption", 422);
+  // Putting the same share forward again would only reset the other player's clock.
+  if (setup.listen?.proposed === ratio && setup.listen.proposedBy === me) {
+    throw new GameError("awaitingAnswer", 409);
+  }
+
+  const rooms = await roomsCollection();
+  const now = new Date();
+  const updated = await rooms.findOneAndUpdate(
+    { code: room.code, status: "active", "setup.listen.settledAt": null },
+    {
+      $set: {
+        "setup.listen.proposed": ratio,
+        "setup.listen.proposedBy": me,
+        "setup.listen.stageAt": now,
+        updatedAt: now,
+      },
+    },
+    { returnDocument: "after", projection: { _id: 0 } },
+  );
+  if (!updated) throw new GameError("stateChangedRefresh", 409);
+
+  return viewFor(updated, user);
+}
+
+/** The other player agrees, and the match can begin. */
+export async function acceptListen(code: string, user: CurrentUser): Promise<RoomView> {
+  const room = await loadCurrentRoom(code);
+  const me = requireSlot(room, user);
+  requireActive(room);
+  const setup = requireListenStep(room);
+
+  const proposed = setup.listen?.proposed;
+  if (proposed === null || proposed === undefined) throw new GameError("noProposal", 409);
+  if (setup.listen?.proposedBy === me) throw new GameError("cannotAnswerOwn", 403);
+
+  const rooms = await roomsCollection();
+  const updated = await rooms.findOneAndUpdate(
+    { code: room.code, status: "active", "setup.listen.settledAt": null, "setup.listen.proposed": proposed },
+    { $set: listenSettle(proposed, false, new Date()) },
+    { returnDocument: "after", projection: { _id: 0 } },
+  );
+  if (!updated) throw new GameError("stateChangedRefresh", 409);
+
+  return viewFor(updated, user);
+}
+
 /** The toss winner's answer to the proposed genre: accept it, or spend the one refusal. */
 export async function answerGenre(code: string, user: CurrentUser, accept: boolean): Promise<RoomView> {
   const room = await loadCurrentRoom(code);
@@ -942,8 +1065,8 @@ export async function decide(
   if (skip && card === "red") {
     throw new GameError("noRedOnSkip", 409);
   }
-  if (!skip && Date.now() < listenUnlockAt(pending)) {
-    const percent = Math.round(listenRatio() * 100);
+  if (!skip && Date.now() < listenUnlockAt(room, pending)) {
+    const percent = Math.round(roomListenRatio(room) * 100);
     throw new GameError("listenFirst", 409, { percent, cost: skipCost });
   }
 

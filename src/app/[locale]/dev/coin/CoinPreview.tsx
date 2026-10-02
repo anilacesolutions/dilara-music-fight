@@ -45,10 +45,11 @@ function freshRoom(me: PlayerSlot): RoomView {
         auto: false,
       },
       genre: { options: OPTIONS, picker: null, proposed: null, vetoed: false, locked: null, deadline: null, auto: false },
+      listen: { proposed: null, proposedBy: null, ratio: null, deadline: null, auto: false },
     },
     genre: null,
     canCancel: true,
-    listenRatio: 0.8,
+    listenRatio: 0.6,
     listenUnlockAt: null,
     turnDeadline: null,
     canAgreeToEnd: false,
@@ -107,6 +108,7 @@ export function CoinPreview() {
           deadline: null,
         },
         genre: { ...current.setup!.genre, picker: other(starter), deadline: Date.now() + 120_000 },
+        listen: current.setup!.listen,
       },
     }));
   }
@@ -191,6 +193,8 @@ export function CoinPreview() {
           onCall={onCall}
           onPropose={onPropose}
           onAnswer={onAnswer}
+        onProposeListen={() => {}}
+        onAcceptListen={() => {}}
         />
       )}
 

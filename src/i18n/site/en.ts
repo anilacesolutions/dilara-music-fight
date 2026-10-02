@@ -335,10 +335,10 @@ export const site: Site = {
       "Whoever loses the toss decides. They are shown a list built from the genres both profiles have in common; when there is little overlap the list is topped up to five with widely known genres. Their opponent may refuse the choice once, and the second choice is final. The genre only binds the opening song; every later song is judged against the one before it.",
     sendQ: "How do I send a song?",
     sendA: (maxMinutes: number) =>
-      `Paste the YouTube link into the box and press "Check". You will see the title, the channel and the length; if that is the right song, send it. Songs longer than ${maxMinutes} minutes and live streams are refused. The same song cannot be played twice in one match.`,
-    listenQ: "Why do I have to listen with the sound on?",
-    listenA: (percent: number) =>
-      `Before you can rule on your opponent's song you have to hear at least ${percent}% of it. The counter only moves while the song is playing and the sound is on; turning it down and waiting does not fill the bar. Skipping ahead does not help either, because the counter tracks the seconds you actually heard, and hearing the same part twice does not count twice. The reason is simple: both your card decision and the referee's ruling assume you really listened.`,
+      `When it is your turn, type an artist or song name into the search box and pick from the results. Only songs you can actually send appear there: under ${maxMinutes} minutes, not a live stream, and playable in our own player. If you already have a YouTube link, "Paste a link" takes you to the old way. The same song cannot be played twice in one match.`,
+    listenQ: "Why do I have to listen to the song?",
+    listenA:
+      "You cannot answer your opponent's song until you have heard as much of it as the two of you agreed at the start of the match. The counter only moves while the song is playing and the sound is up; muting it and waiting does not fill the bar. Skipping ahead does not work either, because the counter counts the seconds you actually heard and hearing the same part twice only counts once. The reason is simple: both your card call and any appeal rest on your having really listened.",
     skipQ: "Can I answer without listening?",
     skipA: (cost: number) =>
       `You can, at a price: ${cost} points. You may still show a yellow card on a song you skipped, but not a red one — you cannot knock your opponent out of a match with a song you never heard. There is no limit on skipping, and everyone can see that you did.`,
@@ -347,7 +347,7 @@ export const site: Site = {
       `If your opponent's song strikes you as off-format, you show a card: yellow means "doesn't quite fit", red means "nowhere near". A card only stands if the referee also finds the song off-format; if the referee accepts the song, your card is wasted and nothing changes. A yellow that stands costs your opponent ${yellowPenalty} points, a red ${redPenalty}. The points are not the real stake: as in football, a red card that stands ends the match there and then, and the player who received it loses. Two yellows that stand do the same. Each player gets ${yellows} yellows and one red per match.`,
     varQ: "What is VAR and how do I use it?",
     varA: (seconds: number) =>
-      `Exactly as in football: the referee on the pitch decides quickly, VAR looks more closely. If your opponent showed you a card and the referee agreed with it, the card does not bite straight away — it comes to you first. You have ${seconds} seconds: accept the decision, or send it to VAR. A second referee then looks at the whole match, the songs before it and how close the subgenres really are, and its word is final. Overturned, the card is cancelled, your song counts as a fit, your score is corrected and the card goes back to your opponent. Upheld, the card stands. One check per match; if the time runs out, the card simply stands.`,
+      `Just like football: the referee on the pitch decides quickly, VAR looks harder. If your opponent showed you a card and the referee agreed with it, the card does not bite yet - it comes to you first. You have ${seconds} seconds: accept it, or send it upstairs. Upstairs a second referee looks at the whole match, the songs before it and how close the subgenres really are, and its word is final. Overturned, the card is cancelled, your song counts as a fit, your score is corrected and the card goes back to the player who showed it. Upheld, it stands. One check per player per match; let the time run out and the card stands by itself. You can read what VAR said afterwards too: tap the VAR badge under that song in the song list, and it stays there after the match.`,
     refereeQ: "What does the referee do?",
     refereeA:
       "The referee is an AI. It works out the artist, the track and the genre from the title and the channel, then compares that either with the previous song or, on the opening move, with the agreed genre. It writes its ruling and the reasoning behind it. The reasoning is written in all three languages at once, because the same ruling is read by both players and every spectator. The ruling stays sealed until you have made your card decision, so nobody can peek first and play accordingly.",
@@ -363,6 +363,12 @@ export const site: Site = {
     spectatorQ: "Can I watch other people's matches?",
     spectatorA:
       "Yes — anyone with the room code can watch. Spectators see the coin toss, the genre pick and every song, but cannot press anything. Players may close the match to spectators entirely, or leave it open to watch while switching off spectator chat. Spectators earn no points.",
+    listenRuleQ: "How much of each song do we have to hear?",
+    listenRuleA: (fallback: number, seconds: number) =>
+      `The two of you settle that at the start, once the genre is decided. The slider offers 0%, 20%, 40%, 60%, 80% and 100%. One of you proposes a share and it does not count until the other agrees; instead of accepting you can move the slider and make your own offer, so haggling is fine. Without an agreement in ${seconds} seconds the match starts on the default ${fallback}%. At 0% there is no listening requirement at all and either of you may answer at once; at 100% you have to hear every song right through. Whatever you agree holds for the whole match.`,
+    cookiesQ: "What happens to cookies and my data?",
+    cookiesA:
+      "Two things. First the session cookie: it is what keeps you signed in, and the site cannot work without it. Second, analytics: we use Mixpanel to see which pages get used, and that is entirely up to you. Say no on the cookie banner and the analytics code is never loaded at all - not loaded and switched off, but never downloaded; not a single cookie is written. Change your mind and the \"Cookie settings\" link at the foot of the page will take you back. Your name, e-mail and nickname are never sent to analytics; only your account id goes.",
     stillStuck: "Didn't find your answer?",
     stillStuckLink: "Write to us",
   },

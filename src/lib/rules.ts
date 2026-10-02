@@ -78,14 +78,26 @@ export const PRESENCE_WINDOW_SECONDS = 20;
 /** Absorbs polling lag between a move landing and the opponent's player starting. */
 export const LISTEN_GRACE_MS = 3000;
 
-const LISTEN_RATIO = 0.8;
+/**
+ * Share of the opponent's song you must hear before you may answer, when the
+ * two players never settle on one. Testers found a compulsory 80% tiring, so
+ * the match now opens on 60% and the pair can move it themselves.
+ */
+export const DEFAULT_LISTEN_RATIO = 0.6;
+
+/** The only shares the two of them may agree on, as the slider offers them. */
+export const LISTEN_RATIO_STEPS = [0, 0.2, 0.4, 0.6, 0.8, 1] as const;
+
+export function isListenRatio(value: number): boolean {
+  return LISTEN_RATIO_STEPS.some((step) => Math.abs(step - value) < 1e-9);
+}
 
 /**
- * Share of the opponent's song you must hear before you may answer.
- * MF_LISTEN_RATIO shrinks it for local testing; production always uses 80%.
+ * The share to use when a room never recorded a choice: older matches, and
+ * anything settled by the clock. MF_LISTEN_RATIO shrinks it for local testing.
  */
 export function listenRatio(): number {
-  if (process.env.NODE_ENV === "production") return LISTEN_RATIO;
+  if (process.env.NODE_ENV === "production") return DEFAULT_LISTEN_RATIO;
   const override = Number(process.env.MF_LISTEN_RATIO);
-  return override > 0 && override <= 1 ? override : LISTEN_RATIO;
+  return override > 0 && override <= 1 ? override : DEFAULT_LISTEN_RATIO;
 }

@@ -335,10 +335,10 @@ export const site: Site = {
       "Wer den Wurf verliert, bestimmt es. Vorgeschlagen wird eine Liste aus den Genres, die beide Profile gemeinsam haben; gibt es wenig Überschneidung, wird sie mit breit bekannten Genres auf fünf aufgefüllt. Der Gegner darf die Wahl einmal ablehnen, die zweite Wahl ist endgültig. Das Genre bindet nur den Eröffnungssong; jeder weitere Song wird am vorherigen gemessen.",
     sendQ: "Wie schicke ich einen Song?",
     sendA: (maxMinutes: number) =>
-      `Füge den YouTube-Link ins Feld ein und drücke „Prüfen“. Du siehst Titel, Kanal und Länge; stimmt alles, schick ihn ab. Songs über ${maxMinutes} Minuten und Livestreams werden abgelehnt. Derselbe Song kann in einem Match nicht zweimal laufen.`,
-    listenQ: "Warum muss ich mit Ton hören?",
-    listenA: (percent: number) =>
-      `Bevor du über den Song deines Gegners entscheiden kannst, musst du mindestens ${percent}% davon hören. Der Zähler läuft nur, während der Song spielt und der Ton an ist; leise drehen und warten füllt den Balken nicht. Vorspulen hilft ebenso wenig, denn gezählt werden die Sekunden, die du wirklich gehört hast, und dieselbe Stelle zweimal zu hören zählt nicht doppelt. Der Grund ist einfach: Deine Kartenentscheidung und das Urteil des Schiedsrichters setzen voraus, dass du wirklich zugehört hast.`,
+      `Wenn du dran bist, tippe Künstler oder Songtitel in die Suche und wähle aus den Treffern. Dort erscheint nur, was du auch senden kannst: unter ${maxMinutes} Minuten, kein Livestream und in unserem Player abspielbar. Hast du schon einen YouTube-Link, bringt dich "Link einfügen" zum alten Weg. Derselbe Song kann in einem Match nicht zweimal laufen.`,
+    listenQ: "Warum muss ich den Song anhören?",
+    listenA:
+      "Du kannst erst auf den Song deines Gegners antworten, wenn du so viel davon gehört hast, wie ihr zu Beginn des Matches vereinbart habt. Der Zähler läuft nur, solange der Song spielt und der Ton an ist; stummschalten und warten füllt ihn nicht. Vorspulen hilft auch nicht, denn gezählt werden die Sekunden, die du wirklich gehört hast, und dieselbe Stelle zählt kein zweites Mal. Der Grund ist einfach: Deine Kartenentscheidung und jeder Einspruch beruhen darauf, dass du wirklich zugehört hast.",
     skipQ: "Kann ich ohne Hören antworten?",
     skipA: (cost: number) =>
       `Kannst du, aber es kostet: ${cost} Punkte. Eine Gelbe Karte darfst du auf einen übersprungenen Song immer noch zeigen, eine Rote nicht — mit einem Song, den du nie gehört hast, wirfst du niemanden aus dem Match. Überspringen ist unbegrenzt, und alle sehen, dass du es getan hast.`,
@@ -347,7 +347,7 @@ export const site: Site = {
       `Wenn dir der Song deines Gegners unpassend vorkommt, zeigst du eine Karte: Gelb heißt „passt nicht ganz“, Rot heißt „völlig daneben“. Eine Karte zählt nur, wenn auch der Schiedsrichter den Song unpassend findet; akzeptiert er ihn, war deine Karte umsonst und nichts ändert sich. Eine gültige Gelbe kostet deinen Gegner ${yellowPenalty} Punkte, eine Rote ${redPenalty}. Die Punkte sind nicht der eigentliche Einsatz: Wie im Fußball beendet eine gültige Rote das Match sofort, und wer sie bekommen hat, verliert es. Zwei gültige Gelbe bewirken dasselbe. Jeder Spieler hat pro Match ${yellows} Gelbe und eine Rote.`,
     varQ: "Was ist der VAR und wie nutze ich ihn?",
     varA: (seconds: number) =>
-      `Genau wie im Fußball: Der Schiedsrichter auf dem Platz entscheidet schnell, der VAR schaut genauer hin. Hat dein Gegner dir eine Karte gezeigt und der Schiedsrichter ihm recht gegeben, greift die Karte nicht sofort — sie kommt erst zu dir. Du hast ${seconds} Sekunden: Entscheidung annehmen oder zum VAR schicken. Ein zweiter Schiedsrichter sieht sich dann das ganze Match an, die Songs davor und wie nah die Subgenres wirklich beieinander liegen; sein Wort ist endgültig. Wird die Entscheidung gekippt, ist die Karte weg, dein Song gilt als passend, deine Punkte werden korrigiert und die Karte geht an deinen Gegner zurück. Bleibt sie bestehen, zählt die Karte. Eine Prüfung pro Match; läuft die Zeit ab, bleibt die Karte einfach bestehen.`,
+      `Wie im Fußball: Der Schiedsrichter auf dem Platz entscheidet schnell, der VAR schaut genauer hin. Hat dein Gegner dir eine Karte gezeigt und der Schiedsrichter gibt ihm recht, greift sie noch nicht - sie kommt zuerst zu dir. Du hast ${seconds} Sekunden: annehmen oder zum VAR schicken. Dort sieht ein zweiter Schiedsrichter das ganze Match, die Songs davor und wie nah die Subgenres wirklich sind, und sein Wort ist endgültig. Wird sie aufgehoben, ist die Karte weg, dein Song gilt als passend, deine Punkte werden korrigiert und die Karte geht an den Gegner zurück. Sonst bleibt sie. Eine Prüfung pro Spieler und Match; läuft die Zeit ab, bleibt die Karte von selbst. Die Begründung kannst du später nachlesen: Tippe in der Songliste auf das VAR-Abzeichen unter dem Song - es bleibt auch nach dem Match dort.`,
     refereeQ: "Was macht der Schiedsrichter?",
     refereeA:
       "Der Schiedsrichter ist eine KI. Aus Titel und Kanal erschließt er Künstler, Stück und Genre und vergleicht das dann mit dem vorherigen Song oder, beim Eröffnungszug, mit dem vereinbarten Genre. Er schreibt sein Urteil und die Begründung dazu. Die Begründung entsteht gleich in allen drei Sprachen, denn dasselbe Urteil lesen beide Spieler und alle Zuschauer. Das Urteil bleibt versiegelt, bis du deine Kartenentscheidung getroffen hast — niemand kann vorher nachsehen und sich danach richten.",
@@ -363,6 +363,12 @@ export const site: Site = {
     spectatorQ: "Kann ich Matches anderer ansehen?",
     spectatorA:
       "Ja — wer den Raumcode hat, kann zusehen. Zuschauer sehen den Münzwurf, die Genre-Wahl und jeden Song, können aber nichts drücken. Die Spieler können das Match ganz für Zuschauer schließen oder es offen lassen und nur den Zuschauer-Chat abschalten. Zuschauer bekommen keine Punkte.",
+    listenRuleQ: "Wie viel von jedem Song müssen wir hören?",
+    listenRuleA: (fallback: number, seconds: number) =>
+      `Das legt ihr beide zu Beginn fest, sobald das Genre steht. Der Regler bietet 0 %, 20 %, 40 %, 60 %, 80 % und 100 %. Einer schlägt einen Anteil vor, und er gilt erst, wenn der andere zustimmt; statt anzunehmen kannst du den Regler verschieben und selbst etwas vorschlagen - Feilschen ist erlaubt. Ohne Einigung innerhalb von ${seconds} Sekunden startet das Match mit den voreingestellten ${fallback} %. Bei 0 % gibt es keine Hörpflicht und ihr dürft sofort antworten; bei 100 % müsst ihr jeden Song ganz hören. Was ihr vereinbart, gilt für das ganze Match.`,
+    cookiesQ: "Was passiert mit Cookies und meinen Daten?",
+    cookiesA:
+      "Zwei Dinge. Erstens das Sitzungs-Cookie: Es hält dich angemeldet, ohne das funktioniert die Seite nicht. Zweitens die Auswertung: Wir nutzen Mixpanel, um zu sehen, welche Seiten genutzt werden, und das liegt ganz bei dir. Sagst du im Cookie-Banner Nein, wird der Auswertungscode gar nicht erst geladen - nicht geladen und abgeschaltet, sondern nie heruntergeladen; kein einziges Cookie wird geschrieben. Änderst du deine Meinung, bringt dich der Link \"Cookie-Einstellungen\" am Seitenende zurück. Name, E-Mail und Nickname gehen nie an die Auswertung; nur die Kennung deines Kontos.",
     stillStuck: "Antwort nicht gefunden?",
     stillStuckLink: "Schreib uns",
   },

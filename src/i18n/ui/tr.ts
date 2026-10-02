@@ -148,6 +148,27 @@ export const ui = {
     startingSoon: (label: string) => `Maç ${label} türünde başlıyor`,
   },
 
+  listenRule: {
+    eyebrow: "Dinleme zorunluluğu",
+    title: "Şarkıların yüzde kaçı dinlenecek?",
+    note: (fallback: number) =>
+      `Rakibinin şarkısının bu kadarını dinlemeden cevap veremezsin. İkiniz de aynı oranda anlaşmalısınız; anlaşamazsanız maç %${fallback} ile başlar.`,
+    sliderLabel: "Zorunlu dinleme oranı",
+    noneHint: "Zorunluluk yok, isteyen hemen cevap verir.",
+    someHint: "Şarkının bu kadarını dinlemeden cevap veremezsin.",
+    allHint: "Şarkıyı sonuna kadar dinlemek zorundasın.",
+    propose: (p: number) => `%${p} öner`,
+    counter: (p: number) => `%${p} teklif et`,
+    accept: (p: number) => `%${p} kabul et`,
+    myProposal: (p: number) => `%${p} önerdin`,
+    theirProposal: (name: string, p: number) => `${name} %${p} öneriyor`,
+    answerNote: "Kabul edebilir ya da kaydırıcıyı oynatıp kendi teklifini yapabilirsin.",
+    waitingNote: (name: string) => `${name} cevap vermesi bekleniyor. Fikrini değiştirirsen yeni bir oran önerebilirsin.`,
+    watchingTitle: "Oyuncular dinleme oranını konuşuyor",
+    watchingNote: "Maç, ikisi anlaşınca başlayacak.",
+    countdown: (seconds: number) => `${seconds} saniye içinde anlaşılmazsa varsayılan oran geçerli olur.`,
+  },
+
   send: {
     yourTurn: "● Sıra sende",
     openingTitle: "Açılış şarkısını seç",

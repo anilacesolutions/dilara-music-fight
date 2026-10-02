@@ -147,6 +147,27 @@ export const ui: Ui = {
     startingSoon: (label: string) => `Das Match beginnt mit ${label}`,
   },
 
+  listenRule: {
+    eyebrow: "Hörpflicht",
+    title: "Wie viel von jedem Song muss gehört werden?",
+    note: (fallback: number) =>
+      `Du kannst erst antworten, wenn du so viel vom Song deines Gegners gehört hast. Ihr müsst euch einig sein; sonst startet das Match mit ${fallback} %.`,
+    sliderLabel: "Erforderlicher Höranteil",
+    noneHint: "Keine Pflicht - ihr dürft sofort antworten.",
+    someHint: "Vorher darfst du nicht antworten.",
+    allHint: "Du musst den Song ganz hören.",
+    propose: (p: number) => `${p} % vorschlagen`,
+    counter: (p: number) => `Stattdessen ${p} %`,
+    accept: (p: number) => `${p} % annehmen`,
+    myProposal: (p: number) => `Du hast ${p} % vorgeschlagen`,
+    theirProposal: (name: string, p: number) => `${name} schlägt ${p} % vor`,
+    answerNote: "Nimm an, oder verschieb den Regler für einen eigenen Vorschlag.",
+    waitingNote: (name: string) => `Warten auf ${name}. Du kannst jederzeit einen anderen Anteil vorschlagen.`,
+    watchingTitle: "Die Spieler einigen sich auf den Höranteil",
+    watchingNote: "Das Match beginnt, sobald sie sich einig sind.",
+    countdown: (seconds: number) => `Ohne Einigung in ${seconds} Sekunden gilt der Standard.`,
+  },
+
   send: {
     yourTurn: "● Du bist dran",
     openingTitle: "Wähle den Eröffnungssong",

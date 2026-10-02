@@ -150,9 +150,30 @@ export interface GenreState {
   auto: boolean;
 }
 
+/**
+ * How much of each song has to be heard. Proposed by one player and agreed by
+ * the other, because it changes how the whole match feels and neither side
+ * should be able to impose it.
+ */
+export interface ListenState {
+  /** A share waiting for the other player's answer. */
+  proposed: number | null;
+  /** Who put it forward; they cannot accept their own. */
+  proposedBy: PlayerSlot | null;
+  /** The agreed share. Null until it is settled. */
+  ratio: number | null;
+  /** When this step began; SETUP_SECONDS runs from here. */
+  stageAt: Date | null;
+  settledAt: Date | null;
+  /** Nobody agreed in time, so the default stands. */
+  auto: boolean;
+}
+
 export interface MatchSetup {
   coin: CoinState;
   genre: GenreState;
+  /** Absent on rooms that predate the choice; those run on the default. */
+  listen?: ListenState;
 }
 
 export interface Room {
@@ -198,6 +219,7 @@ export type Phase =
   | "waiting"
   | "coin"
   | "genre"
+  | "listenRule"
   | "send"
   | "listen"
   | "opponent"
@@ -279,9 +301,18 @@ export interface GenreView {
   auto: boolean;
 }
 
+export interface ListenView {
+  proposed: number | null;
+  proposedBy: PlayerSlot | null;
+  ratio: number | null;
+  deadline: number | null;
+  auto: boolean;
+}
+
 export interface SetupView {
   coin: CoinView;
   genre: GenreView;
+  listen: ListenView;
 }
 
 /** A room as one particular viewer is allowed to see it. */

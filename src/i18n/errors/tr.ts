@@ -29,6 +29,8 @@ export const errors = {
   matchAlreadyStarted: "Maç çoktan başladı.",
   throwCoinFirst: "Önce parayı havaya atmanız gerekiyor.",
   coinFirst: "Önce yazı tura atılmalı.",
+  listenRatioNotAnOption: "Geçersiz dinleme oranı.",
+  genreFirst: "Önce maçın türü belirlenmeli.",
   genreNotYours: "Türü rakibin seçiyor.",
   awaitingAnswer: "Rakibinin cevabını bekliyorsun.",
   genreNotAnOption: "Bu tür seçeneklerin arasında yok.",

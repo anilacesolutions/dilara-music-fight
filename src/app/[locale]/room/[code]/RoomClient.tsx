@@ -24,6 +24,7 @@ const ROOM_EVENTS: Record<string, string> = {
   end: "end_vote_cast",
   surrender: "match_surrendered",
   cancel: "match_cancelled",
+  listen: "listen_rule_action_sent",
   settings: "room_settings_changed",
 };
 import { TurnClock } from "@/components/fight/TurnClock";
@@ -88,7 +89,8 @@ export default function RoomClient({ initialRoom, initialMessages, initiallyWatc
   const code = room.code;
   const live = room.status === "waiting" || room.status === "active";
   /** Both seats are taken but the coin or the genre is still open. */
-  const settingUp = room.status === "active" && room.setup !== null && room.setup.genre.locked === null;
+  const settingUp =
+    room.status === "active" && room.setup !== null && room.setup.listen.ratio === null;
 
   const applyRoom = useCallback((next: RoomView) => {
     const previous = roomRef.current;
@@ -286,7 +288,10 @@ export default function RoomClient({ initialRoom, initialMessages, initiallyWatc
 
           {isSpectator && room.status !== "finished" && !settingUp && <SpectatorStage room={room} burst={burst} />}
 
-          {(room.phase === "coin" || room.phase === "genre" || (isSpectator && settingUp)) && (
+          {(room.phase === "coin" ||
+            room.phase === "genre" ||
+            room.phase === "listenRule" ||
+            (isSpectator && settingUp)) && (
             <MatchSetup
               room={room}
               busy={busy}
@@ -294,6 +299,8 @@ export default function RoomClient({ initialRoom, initialMessages, initiallyWatc
               onCall={(side: CoinSide) => void act("coin", { action: "call", side })}
               onPropose={(genre) => void act("genre", { action: "propose", genre })}
               onAnswer={(accept) => void act("genre", { action: accept ? "accept" : "veto" })}
+              onProposeListen={(ratio) => void act("listen", { action: "propose", ratio })}
+              onAcceptListen={() => void act("listen", { action: "accept" })}
             />
           )}
 
